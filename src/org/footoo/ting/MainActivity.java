@@ -16,6 +16,7 @@ public class MainActivity extends Activity {
 		Log.i("test", "test github commit");
 		Log.i("branch-feature0.1", "feature-0.1");
 		// TODO develop new feature
+		// origin master
 	}
 
 	@Override
