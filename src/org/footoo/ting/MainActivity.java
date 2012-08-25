@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		Log.i("test", "test github commit");
-		Log.i("branch liushuai", "liushuai");
+		Log.i("branch-feature0.1", "feature-0.1");
 	}
 
 	@Override
