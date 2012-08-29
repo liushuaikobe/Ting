@@ -1,6 +1,9 @@
 package org.footoo.ting.test;
 
-public class testClass {
-// fix the bugjiansfd
+/**
+ * This class is used for testing
+ *
+ */
+public class TestClass {
 }
 
