@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/top_bar"
+    android:layout_width="fill_parent"
+    android:layout_height="40.0dip"
+    android:layout_alignParentTop="true"
+    android:background="@drawable/top_bar_bg"
+    android:gravity="center_vertical" >
+
+    <Button
+        android:id="@+id/slideBtn"
+        style="@style/topbar_left_btn"
+        android:background="@drawable/menu_unfold" />
+
+    <TextView
+        android:id="@+id/topbar_title"
+        style="@style/topbar_text"
+        android:text="@string/hot_page_title" />
+
+</RelativeLayout>
