@@ -8,17 +8,21 @@ import org.footoo.ting.ui.MainHorizontalScrollView;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 public class MainBaseActivity extends Activity {
 	protected MainHorizontalScrollView scrollView;
 	protected GridView underView;
 	protected View contentPage;
 	protected Button slideBtn;
+
+	protected TextView topBarTitleTv; // TopBar的题目TextView，在子类中实例化
 
 	public MainHorizontalScrollView getScrollView() {
 		return scrollView;
@@ -32,7 +36,29 @@ public class MainBaseActivity extends Activity {
 
 		underView = (GridView) findViewById(R.id.mGridView);
 		// initUnderView();
-		// set the adapter for the menu GridView in the subclass
+		// TODO set the adapter for the menu GridView in the subclass
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (MainHorizontalScrollView.underViewIsOut == true) {
+				scrollView.clickSlideButton();
+			} else {
+				this.finish();
+			}
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	/**
+	 * set the title bar's title
+	 * 
+	 * @param stringResId
+	 */
+	protected void setTopBarTitle(int stringResId) {
+		topBarTitleTv.setText(stringResId);
 	}
 
 	/**
@@ -51,8 +77,8 @@ public class MainBaseActivity extends Activity {
 			menuImgitem.add(map);
 		}
 		SimpleAdapter simpleAdapter = new SimpleAdapter(this, menuImgitem,
-				R.layout.layout_menu_grid_item, new String[] { "menu_item_img" },
-				new int[] { R.id.menu_item });
+				R.layout.layout_menu_grid_item,
+				new String[] { "menu_item_img" }, new int[] { R.id.menu_item });
 		underView.setAdapter(simpleAdapter);
 	}
 }

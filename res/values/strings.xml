@@ -4,5 +4,6 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="hot_page_title">最热</string>
-
+	<string name="all_page_title">全部资源</string>
+    
 </resources>
