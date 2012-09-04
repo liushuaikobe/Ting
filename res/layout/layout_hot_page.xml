@@ -14,14 +14,14 @@
         <include layout="@layout/layout_topbar" />
     </LinearLayout>
 
-    <LinearLayout
+    <org.footoo.ting.ui.SlidingLinearLayout
         android:id="@+id/tmp_btm_ctrl"
         android:layout_width="fill_parent"
         android:layout_height="70dip"
         android:layout_alignParentBottom="true" >
 
         <include layout="@layout/layout_bottom_control" />
-    </LinearLayout>
+    </org.footoo.ting.ui.SlidingLinearLayout>
 
     <org.footoo.ting.ui.SlidingLinearLayout
         android:id="@+id/my_ll"

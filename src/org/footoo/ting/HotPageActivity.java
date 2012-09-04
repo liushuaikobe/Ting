@@ -3,29 +3,37 @@ package org.footoo.ting;
 import org.footoo.ting.adapter.HotPageLargePicAdapter;
 import org.footoo.ting.adapter.HotPageThumbPicAdapter;
 import org.footoo.ting.adapter.MenuGridAdapter;
+import org.footoo.ting.media.PlayerEngine;
 import org.footoo.ting.ui.MainHorizontalScrollView;
 import org.footoo.ting.util.SizeCallBackForMenu;
 import org.taptwo.android.widget.CircleFlowIndicator;
 import org.taptwo.android.widget.ViewFlow;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class HotPageActivity extends MainBaseActivity {
 
+	public static String URL = "url of data";
+	
+	
 	private ViewFlow viewFlow;
 	private GridView thumbGridView;
-
+	private ImageView broadcastController;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		Log.v("cain", "current thread:"+Thread.currentThread().getId());
 		initViews();
 		initViewFlow();
 	}
@@ -55,9 +63,23 @@ public class HotPageActivity extends MainBaseActivity {
 				MenuGridAdapter.HOT_PAGE_ID));
 
 		thumbGridView = (GridView) findViewById(R.id.hot_thumbnail_gridView);
-//		// 为HotPage地下的小GridView设置adapter
+		// // 为HotPage地下的小GridView设置adapter
 		thumbGridView.setAdapter(new HotPageThumbPicAdapter(
 				HotPageActivity.this));
+
+		broadcastController = (ImageView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_control_btn);
+
+		broadcastController.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				
+				Intent intent = new Intent(HotPageActivity.this, PlayerEngine.class);
+				String uri = "http://172.16.244.31/Apologize.mp3";
+				intent.putExtra(URL, uri);
+				startService(intent);
+			}
+		});
 	}
 
 	private void initViewFlow() {

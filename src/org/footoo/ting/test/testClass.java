@@ -4,6 +4,7 @@ package org.footoo.ting.test;
  * This class is used for testing
  *
  */
-public class TestClass {
+public class testClass {
+	
 }
 

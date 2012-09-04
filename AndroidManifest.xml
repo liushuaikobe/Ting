@@ -6,6 +6,7 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
+    <permission android:name="android.permission.INTERNET"></permission>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -20,8 +21,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainBaseActivity" >
-        </activity>
+        <activity android:name=".MainBaseActivity" ></activity>
+        
+        <service android:name="org.footoo.ting.media.PlayerEngine"></service>
+        
     </application>
 
 </manifest>
