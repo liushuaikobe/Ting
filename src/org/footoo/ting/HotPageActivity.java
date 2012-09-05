@@ -50,7 +50,7 @@ public class HotPageActivity extends MainBaseActivity {
 				scrollView.clickSlideButton();
 			}
 		});
-
+ 
 		View leftView = new View(this);
 		leftView.setBackgroundColor(Color.TRANSPARENT);
 		final View[] children = new View[] { leftView, contentPage };
