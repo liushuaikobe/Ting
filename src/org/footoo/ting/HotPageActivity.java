@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.Toast;
@@ -55,8 +54,7 @@ public class HotPageActivity extends MainBaseActivity {
 		underView.setAdapter(new MenuGridAdapter(HotPageActivity.this,
 				MenuGridAdapter.HOT_PAGE_ID));
 
-		thumbGridView = (GridView) contentPage
-				.findViewById(R.id.hot_thumbnail_gridView);
+		thumbGridView = (GridView) findViewById(R.id.hot_thumbnail_gridView);
 		// 为HotPage地下的小GridView设置adapter
 		thumbGridView.setAdapter(new HotPageThumbPicAdapter(
 				HotPageActivity.this));
@@ -80,5 +78,18 @@ public class HotPageActivity extends MainBaseActivity {
 
 		viewFlow.setSelection(3 * 1000);
 		viewFlow.startAutoFlowTimer();
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (MainHorizontalScrollView.underViewIsOut == true) {
+				scrollView.clickSlideButton();
+			} else {
+				this.finish();
+			}
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 }

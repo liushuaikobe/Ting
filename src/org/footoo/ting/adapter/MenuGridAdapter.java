@@ -19,6 +19,7 @@ import android.widget.ImageView;
 public class MenuGridAdapter extends BaseAdapter {
 
 	private Activity mContext;
+
 	private int myId;
 	private ArrayList<Integer> menuImgitem;
 
