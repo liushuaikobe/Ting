@@ -39,4 +39,14 @@
         <item name="android:textColor">#ffffffff</item>
     </style>
 
-</resources>
+    <style name="category_listitem_text">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <style name="chapter_listitem_text">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+</resources>

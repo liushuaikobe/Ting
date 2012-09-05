@@ -63,7 +63,9 @@ public class HotPageActivity extends MainBaseActivity {
 				MenuGridAdapter.HOT_PAGE_ID));
 
 		thumbGridView = (GridView) findViewById(R.id.hot_thumbnail_gridView);
-		// // 为HotPage地下的小GridView设置adapter
+
+		// 为HotPage地下的小GridView设置adapter
+
 		thumbGridView.setAdapter(new HotPageThumbPicAdapter(
 				HotPageActivity.this));
 
@@ -114,5 +116,4 @@ public class HotPageActivity extends MainBaseActivity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-
 }

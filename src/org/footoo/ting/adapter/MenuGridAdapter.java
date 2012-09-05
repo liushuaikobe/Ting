@@ -2,22 +2,24 @@ package org.footoo.ting.adapter;
 
 import java.util.ArrayList;
 
+import org.footoo.ting.AllPageActivity;
+import org.footoo.ting.HistoryPageActivity;
 import org.footoo.ting.HotPageActivity;
+import org.footoo.ting.LocalSourceActivity;
+import org.footoo.ting.MyFavoActivity;
 import org.footoo.ting.R;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class MenuGridAdapter extends BaseAdapter {
 
-	private Context mContext;
+	private Activity mContext;
+
 	private int myId;
 	private ArrayList<Integer> menuImgitem;
 
@@ -28,7 +30,7 @@ public class MenuGridAdapter extends BaseAdapter {
 	public static final int LOCAL_PAGE_ID = 4;
 	public static final int MORE_PAGE_ID = 5;
 
-	public MenuGridAdapter(Context context, int currentId) {
+	public MenuGridAdapter(Activity context, int currentId) {
 		this.mContext = context;
 		this.myId = currentId;
 		menuImgitem = new ArrayList<Integer>();
@@ -91,18 +93,60 @@ public class MenuGridAdapter extends BaseAdapter {
 			if (myId == HOT_PAGE_ID) {
 				((HotPageActivity) mContext).getScrollView().clickSlideButton();
 			} else {
-
+				intent.setClass(mContext, HotPageActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
 			}
 			break;
-		case MORE_PAGE_ID:
+		case ALL_PAGE_ID:
 			if (myId == ALL_PAGE_ID) {
-
+				((AllPageActivity) mContext).getScrollView().clickSlideButton();
 			} else {
-
+				intent.setClass(mContext, AllPageActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
 			}
+		case FAVORATE_PAGE_ID:
+			if (myId == FAVORATE_PAGE_ID) {
+				((MyFavoActivity) mContext).getScrollView().clickSlideButton();
+			} else {
+				intent.setClass(mContext, MyFavoActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
+			}
+			break;
+		case HISTORY_PAGE_ID:
+			if (myId == HISTORY_PAGE_ID) {
+				((HistoryPageActivity) mContext).getScrollView()
+						.clickSlideButton();
+			} else {
+				intent.setClass(mContext, HistoryPageActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
+			}
+			break;
+		case LOCAL_PAGE_ID:
+			if (myId == LOCAL_PAGE_ID) {
+				((LocalSourceActivity) mContext).getScrollView()
+						.clickSlideButton();
+			} else {
+				intent.setClass(mContext, LocalSourceActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
+			}
+			break;
 		default:
 			break;
 		}
 	}
-
 }

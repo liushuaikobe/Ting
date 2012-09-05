@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/chapter_list_bg" >
+
+    <LinearLayout
+        android:id="@+id/chapter_tmp_ll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dip" >
+
+        <ImageView
+            android:id="@+id/chapter_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:src="@drawable/chapter_more_normal" />
+
+        <ImageView
+            android:id="@+id/chapter_favorate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:src="@drawable/chapter_fav_normal" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/chapter_name"
+        style="@style/chapter_listitem_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="6dip"
+        android:layout_marginRight="10dip"
+        android:layout_toLeftOf="@id/chapter_tmp_ll"
+        android:ellipsize="end"
+        android:singleLine="true" />
+
+</RelativeLayout>

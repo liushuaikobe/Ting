@@ -21,10 +21,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainBaseActivity" ></activity>
+
+        <activity android:name=".MainBaseActivity" >
+        </activity>
+        <activity android:name=".AllPageActivity" >
+        </activity>
+        <activity android:name=".MyFavoActivity" >
+        </activity>
+        <activity android:name=".HistoryPageActivity" >
+        </activity>
+        <activity android:name=".LocalSourceActivity" >
+        </activity>
+
         
         <service android:name="org.footoo.ting.media.PlayerEngine"></service>
-        
     </application>
 
 </manifest>
