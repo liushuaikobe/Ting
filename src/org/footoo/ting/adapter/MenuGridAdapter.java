@@ -110,6 +110,7 @@ public class MenuGridAdapter extends BaseAdapter {
 						R.anim.push_out);
 				mContext.finish();
 			}
+			break;
 		case FAVORATE_PAGE_ID:
 			if (myId == FAVORATE_PAGE_ID) {
 				((MyFavoActivity) mContext).getScrollView().clickSlideButton();
