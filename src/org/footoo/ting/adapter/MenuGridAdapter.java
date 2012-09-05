@@ -3,19 +3,18 @@ package org.footoo.ting.adapter;
 import java.util.ArrayList;
 
 import org.footoo.ting.AllPageActivity;
+import org.footoo.ting.HistoryPageActivity;
 import org.footoo.ting.HotPageActivity;
+import org.footoo.ting.LocalSourceActivity;
+import org.footoo.ting.MyFavoActivity;
 import org.footoo.ting.R;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class MenuGridAdapter extends BaseAdapter {
 
@@ -110,6 +109,41 @@ public class MenuGridAdapter extends BaseAdapter {
 						R.anim.push_out);
 				mContext.finish();
 			}
+		case FAVORATE_PAGE_ID:
+			if (myId == FAVORATE_PAGE_ID) {
+				((MyFavoActivity) mContext).getScrollView().clickSlideButton();
+			} else {
+				intent.setClass(mContext, MyFavoActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
+			}
+			break;
+		case HISTORY_PAGE_ID:
+			if (myId == HISTORY_PAGE_ID) {
+				((HistoryPageActivity) mContext).getScrollView()
+						.clickSlideButton();
+			} else {
+				intent.setClass(mContext, HistoryPageActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
+			}
+			break;
+		case LOCAL_PAGE_ID:
+			if (myId == LOCAL_PAGE_ID) {
+				((LocalSourceActivity) mContext).getScrollView()
+						.clickSlideButton();
+			} else {
+				intent.setClass(mContext, LocalSourceActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
+			}
+			break;
 		default:
 			break;
 		}

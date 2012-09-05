@@ -61,6 +61,10 @@ public class MainBaseActivity extends Activity {
 		topBarTitleTv.setText(stringResId);
 	}
 
+	protected void setTopBarTitle(String title) {
+		topBarTitleTv.setText(title);
+	}
+
 	/**
 	 * This fun is just for test
 	 */
