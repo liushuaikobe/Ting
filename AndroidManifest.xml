@@ -33,6 +33,8 @@
         </activity>
         <activity android:name=".LocalSourceActivity" >
         </activity>
+        <activity android:name=".MoreActivity" >
+        </activity>
 
         <service android:name="org.footoo.ting.media.PlayerEngine" >
         </service>

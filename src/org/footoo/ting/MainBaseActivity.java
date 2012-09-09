@@ -3,7 +3,6 @@ package org.footoo.ting;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.footoo.ting.adapter.MenuGridAdapter;
 import org.footoo.ting.ui.MainHorizontalScrollView;
 
 import android.app.Activity;
@@ -66,7 +65,7 @@ public class MainBaseActivity extends Activity {
 	}
 
 	/**
-	 * This fun is just for test
+	 * This fun is just for testing
 	 */
 	private void initUnderView() {
 		ArrayList<HashMap<String, Object>> menuImgitem = new ArrayList<HashMap<String, Object>>();

@@ -109,11 +109,6 @@ public class MainHorizontalScrollView extends HorizontalScrollView {
 			underViewIsOut = false;
 		}
 		MainHorizontalScrollView.this.smoothScrollTo(underViewWidth, 0);
-		if (underViewIsOut == true) {
-			slideButton.setBackgroundResource(R.drawable.menu_fold);
-		} else {
-			slideButton.setBackgroundResource(R.drawable.menu_unfold);
-		}
 	}
 
 	@Override

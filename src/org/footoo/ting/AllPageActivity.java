@@ -11,6 +11,7 @@ import org.footoo.ting.R;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ public class AllPageActivity extends MainBaseActivity {
 	private ListView chapterLv;
 
 	private int currentPageId; // 标志着当前页面内容的Id
+	private View AllPageListView; // 暂存contentPage内容的
 
 	private static final int CATEGORY_PAGE = 0;
 	private static final int SOURCES_PAGE = 1;
@@ -112,6 +114,9 @@ public class AllPageActivity extends MainBaseActivity {
 			View.OnClickListener {
 		public void onClick(View v) {
 			currentPageId = CATEGORY_PAGE;
+			slideBtn.setBackgroundResource(R.drawable.slidebtn_bg);
+			slideBtn.setText("");
+			slideBtn.setOnClickListener(new CategoryPageSlideBtnClickListener());
 			categoryLv.setAdapter(categoryListAdapter);
 		}
 
@@ -123,6 +128,16 @@ public class AllPageActivity extends MainBaseActivity {
 	private class DetailPageSlideBtnClickListener implements
 			View.OnClickListener {
 		public void onClick(View v) {
+			currentPageId = SOURCES_PAGE;
+			setContentPage(AllPageListView, "古典文学",
+					new SourcePageSLideBtnCLickListener(),
+					new ConfigContentPageInterface() {
+						public void config(View page) {
+							slideBtn.setBackgroundResource(R.drawable.go_back_selector);
+							slideBtn.setOnClickListener(new SourcePageSLideBtnCLickListener());
+							slideBtn.setText(R.string.go_back);
+						}
+					});
 		}
 	}
 
@@ -145,13 +160,14 @@ public class AllPageActivity extends MainBaseActivity {
 			scrollView = (MainHorizontalScrollView) findViewById(R.id.mScrollView); // 初始化HSV
 		}
 		contentPage = LayoutInflater.from(this).inflate(layoutId, null); // 设置HSV上的ContentPage的内容
-		cPageInterface.config(contentPage);
 
 		topBarTitleTv = (TextView) contentPage.findViewById(R.id.topbar_title);
 		setTopBarTitle(topBarTitleStringResId); // 设置ContentPage上TitleBar的文字
 
 		slideBtn = (Button) contentPage.findViewById(R.id.slideBtn); // 设置ContentPage上SlideButton的点击事件
 		slideBtn.setOnClickListener(clickListener);
+
+		cPageInterface.config(contentPage);
 
 		View leftView = new View(this); // 设置将ContentPage显示到HSV上+
 		leftView.setBackgroundColor(Color.TRANSPARENT);
@@ -162,7 +178,83 @@ public class AllPageActivity extends MainBaseActivity {
 		scrollView.setSlideButton(slideBtn);
 	}
 
-	// 具体资源页面的章节列表的Item的点击事件
+	/**
+	 * 同上一个函数是重载函数，直接给出topbar的文字内容
+	 * 
+	 * @param layoutId
+	 *            contentPage的布局Id
+	 * @param topBarTitle
+	 *            TitleBar上的文字
+	 * @param clickListener
+	 *            Titlebar上的按钮的点击Listener
+	 * @param cPageInterface
+	 *            回调接口，对contentPage进行具体的配置
+	 */
+	private void setContentPage(int layoutId, String topBarTitle,
+			View.OnClickListener clickListener,
+			ConfigContentPageInterface cPageInterface) {
+		if (scrollView == null) {
+			scrollView = (MainHorizontalScrollView) findViewById(R.id.mScrollView); // 初始化HSV
+		}
+		contentPage = LayoutInflater.from(this).inflate(layoutId, null); // 设置HSV上的ContentPage的内容
+
+		topBarTitleTv = (TextView) contentPage.findViewById(R.id.topbar_title);
+		setTopBarTitle(topBarTitle); // 设置ContentPage上TitleBar的文字
+
+		slideBtn = (Button) contentPage.findViewById(R.id.slideBtn); // 设置ContentPage上SlideButton的点击事件
+		slideBtn.setOnClickListener(clickListener);
+
+		cPageInterface.config(contentPage);
+
+		View leftView = new View(this); // 设置将ContentPage显示到HSV上+
+		leftView.setBackgroundColor(Color.TRANSPARENT);
+		((ViewGroup) scrollView.getChildAt(0)).removeAllViews();
+		final View[] children = new View[] { leftView, contentPage };
+		scrollView.initViews(children, new SizeCallBackForMenu(slideBtn),
+				(View) findViewById(R.id.menu_layout));
+		scrollView.setSlideButton(slideBtn);
+	}
+
+	/**
+	 * 同上一个函数是重载函数，直接设置contentPage为某个已存在的View
+	 * 
+	 * @param view
+	 *            设置contentPage的内容为View
+	 * @param topBarTitle
+	 *            TitleBar上的文字
+	 * @param clickListener
+	 *            Titlebar上的按钮的点击Listener
+	 * @param cPageInterface
+	 *            回调接口，对contentPage进行具体的配置
+	 */
+	private void setContentPage(View view, String topBarTitle,
+			View.OnClickListener clickListener,
+			ConfigContentPageInterface cPageInterface) {
+		if (scrollView == null) {
+			scrollView = (MainHorizontalScrollView) findViewById(R.id.mScrollView); // 初始化HSV
+		}
+		contentPage = view; // 设置HSV上的ContentPage的内容
+
+		topBarTitleTv = (TextView) contentPage.findViewById(R.id.topbar_title);
+		setTopBarTitle(topBarTitle); // 设置ContentPage上TitleBar的文字
+
+		slideBtn = (Button) contentPage.findViewById(R.id.slideBtn); // 设置ContentPage上SlideButton的点击事件
+		slideBtn.setOnClickListener(clickListener);
+
+		cPageInterface.config(contentPage);
+
+		View leftView = new View(this); // 设置将ContentPage显示到HSV上+
+		leftView.setBackgroundColor(Color.TRANSPARENT);
+		((ViewGroup) scrollView.getChildAt(0)).removeAllViews();
+		final View[] children = new View[] { leftView, contentPage };
+		scrollView.initViews(children, new SizeCallBackForMenu(slideBtn),
+				(View) findViewById(R.id.menu_layout));
+		scrollView.setSlideButton(slideBtn);
+	}
+
+	/**
+	 * 具体资源页面的章节列表的Item的点击事件
+	 */
 	private class MyChapterItemClickListener implements
 			AdapterView.OnItemClickListener {
 
@@ -173,7 +265,9 @@ public class AllPageActivity extends MainBaseActivity {
 
 	}
 
-	// 分类列表和每一类资源详情的列表（其实它们是一个ListView，只是Adapter不同）的点击事件
+	/**
+	 * 分类列表和每一类资源详情的列表（其实它们是一个ListView，只是Adapter不同）的点击事件
+	 */
 	private class MyItemClickListener implements
 			AdapterView.OnItemClickListener {
 
@@ -185,16 +279,18 @@ public class AllPageActivity extends MainBaseActivity {
 				categoryLv.setAdapter(sourcesListAdapter);
 				setTopBarTitle("古典文学");
 				slideBtn.setBackgroundResource(R.drawable.go_back_selector);
+				slideBtn.setOnClickListener(new SourcePageSLideBtnCLickListener());
 				slideBtn.setText(R.string.go_back);
 				break;
 			case SOURCES_PAGE:
 				currentPageId = DETAIL_PAGE;
-				setContentPage(R.layout.layout_source_detail,
-						R.string.all_page_title,
-						new SourcePageSLideBtnCLickListener(),
+				AllPageListView = contentPage; // 将内容是ListView保存起来
+				setContentPage(R.layout.layout_source_detail, "红楼梦",
+						new DetailPageSlideBtnClickListener(),
 						new ConfigContentPageInterface() {
 							public void config(View page) {
-								setTopBarTitle("红楼梦");
+								slideBtn.setText(R.string.go_back);
+								slideBtn.setBackgroundResource(R.drawable.go_back_selector);
 								((ImageView) page
 										.findViewById(R.id.source_cover_large))
 										.setImageResource(R.drawable.sample_source_cover);
@@ -237,7 +333,7 @@ public class AllPageActivity extends MainBaseActivity {
 		detailViewSwitcher.addView(getLayoutInflater().inflate(
 				R.layout.layout_progress_page, null));
 		detailViewSwitcher.showNext();
-		// 暂时现在初始化这个ListView的时候制造一种假象
+		// 暂时现在初始化章节列表ListView的时候制造一种假象
 		new Handler().postDelayed(new Runnable() {
 
 			public void run() {
@@ -249,11 +345,46 @@ public class AllPageActivity extends MainBaseActivity {
 		}, 2000);
 	}
 
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (MainHorizontalScrollView.underViewIsOut == true) {
+				scrollView.clickSlideButton();
+			} else {
+				switch (currentPageId) {
+				case CATEGORY_PAGE:
+					this.finish();
+					break;
+				case SOURCES_PAGE:
+					currentPageId = CATEGORY_PAGE;
+					slideBtn.setBackgroundResource(R.drawable.slidebtn_bg);
+					slideBtn.setText("");
+					slideBtn.setOnClickListener(new CategoryPageSlideBtnClickListener());
+					categoryLv.setAdapter(categoryListAdapter);
+					break;
+				case DETAIL_PAGE:
+					currentPageId = SOURCES_PAGE;
+					setContentPage(AllPageListView, "古典文学",
+							new SourcePageSLideBtnCLickListener(),
+							new ConfigContentPageInterface() {
+								public void config(View page) {
+									slideBtn.setBackgroundResource(R.drawable.go_back_selector);
+									slideBtn.setOnClickListener(new SourcePageSLideBtnCLickListener());
+									slideBtn.setText(R.string.go_back);
+								}
+							});
+					break;
+				default:
+					break;
+				}
+			}
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
 	/**
 	 * 为配置ContentPage提供回调接口
-	 * 
-	 * @author liushuai
-	 * 
 	 */
 	private interface ConfigContentPageInterface {
 		void config(View page);
