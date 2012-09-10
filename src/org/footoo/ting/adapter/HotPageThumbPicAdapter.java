@@ -1,36 +1,27 @@
 package org.footoo.ting.adapter;
 
-import org.footoo.ting.R;
+import java.util.ArrayList;
+
+import org.footoo.ting.media.BookInstance;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 
 public class HotPageThumbPicAdapter extends BaseAdapter {
 
 	private Context mContext;
-	private int[] sourceCoverPicIds = { R.drawable.sample_cover_1,
-			R.drawable.sample_cover_1, R.drawable.sample_cover_1,
-			R.drawable.sample_cover_1, R.drawable.sample_cover_1,
-			R.drawable.sample_cover_1, R.drawable.sample_cover_1,
-			R.drawable.sample_cover_1, R.drawable.sample_cover_1 };
+	private ArrayList<BookInstance> book;
 
-	// private int[] sourceCoverPicIds = { R.drawable.sample_cover_1,
-	// R.drawable.sample_cover_2, R.drawable.sample_cover_3,
-	// R.drawable.sample_cover_4, R.drawable.sample_cover_5,
-	// R.drawable.sample_cover_6, R.drawable.sample_cover_7,
-	// R.drawable.sample_cover_8, R.drawable.sample_cover_9 };
-
-	public HotPageThumbPicAdapter(Context context) {
+	public HotPageThumbPicAdapter(Context context, ArrayList<BookInstance> book) {
 		this.mContext = context;
+		this.book = book;
 	}
 
 	public int getCount() {
-		return sourceCoverPicIds.length;
+		return book.size();
 	}
 
 	public Object getItem(int arg0) {
@@ -58,7 +49,7 @@ public class HotPageThumbPicAdapter extends BaseAdapter {
 		} else {
 			imageView = (ImageView) convertView;
 		}
-		imageView.setImageResource(sourceCoverPicIds[position]);
+		imageView.setImageBitmap(book.get(position).coverBitmap);
 		return imageView;
 	}
 }
