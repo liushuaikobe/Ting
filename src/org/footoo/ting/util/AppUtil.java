@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 public class AppUtil {
 	/**
@@ -32,5 +34,29 @@ public class AppUtil {
 							}
 						});
 		builder.create().show();
+	}
+
+	/**
+	 * 判断网络连接是否可用
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static boolean isNetworkAvailable(Context context) {
+		ConnectivityManager cm = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (cm == null) {
+			return false;
+		} else {
+			NetworkInfo[] info = cm.getAllNetworkInfo();
+			if (info != null) {
+				for (int i = 0; i < info.length; i++) {
+					if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }

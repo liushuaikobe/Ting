@@ -18,5 +18,9 @@
     <string name="about_dialog_title">关于</string>
     <string name="about_dialog_string">　　听世界是一款在线听书类应用，为了解决人们长时间看书的疲惫和对读书条件要求苛刻的问题。</string>
     <string name="about_dialog_btn_text">确定</string>
+    <string name="del_menu_text">清空历史</string>
+    <string name="del_submenu_text">确认清空</string>
+    <string name="context_menu_play">播放</string>
+    <string name="context_menu_del">删除该记录</string>
 
 </resources>

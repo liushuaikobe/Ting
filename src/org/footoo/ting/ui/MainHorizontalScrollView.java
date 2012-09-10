@@ -1,6 +1,5 @@
 package org.footoo.ting.ui;
 
-import org.footoo.ting.R;
 import org.footoo.ting.util.SizeCallBack;
 
 import android.content.Context;

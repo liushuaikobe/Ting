@@ -1,7 +1,5 @@
 package org.footoo.ting.util;
 
-import org.footoo.ting.ui.MainHorizontalScrollView;
-
 import android.widget.Button;
 
 public class SizeCallBackForMenu implements SizeCallBack {

@@ -62,6 +62,21 @@ public class DBManager {
 	}
 
 	/**
+	 * 清空所有的播放历史
+	 */
+	public void clearHistory() {
+		db.beginTransaction();
+		try {
+			db.delete(DBHelper.PLAY_HISTORY_TABLE_NAME, null, null);
+			db.setTransactionSuccessful();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
+	}
+
+	/**
 	 * 查询所有的播放历史
 	 * 
 	 * @return
@@ -117,6 +132,29 @@ public class DBManager {
 			myFavoList.add(myFavoDbItem);
 		}
 		return myFavoList;
+	}
+
+	/**
+	 * 向数据库中插入一条我的最爱
+	 * 
+	 * 
+	 * @param myFavo
+	 */
+	public void insertOneMyFavo(MyFavoDbItem myFavo) {
+		db.beginTransaction();
+		try {
+			String sqlStr = "insert into " + DBHelper.MY_FAVO_TABLE_NAME
+					+ " values(NULL,?,?,?,?,?)";
+			Object[] args = new Object[] { myFavo.getCategory_id(),
+					myFavo.getSource_id(), myFavo.getSource_url(),
+					myFavo.getSource_desc(), myFavo.getCover_path() };
+			db.execSQL(sqlStr, args);
+			db.setTransactionSuccessful();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
 	}
 
 	/**

@@ -3,11 +3,9 @@ package org.footoo.ting.adapter;
 import org.footoo.ting.R;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 
 public class HotPageThumbPicAdapter extends BaseAdapter {
