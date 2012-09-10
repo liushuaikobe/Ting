@@ -1,6 +1,5 @@
 package org.footoo.ting.ui;
 
-import org.footoo.ting.R;
 import org.footoo.ting.util.SizeCallBack;
 
 import android.content.Context;
@@ -109,11 +108,6 @@ public class MainHorizontalScrollView extends HorizontalScrollView {
 			underViewIsOut = false;
 		}
 		MainHorizontalScrollView.this.smoothScrollTo(underViewWidth, 0);
-		if (underViewIsOut == true) {
-			slideButton.setBackgroundResource(R.drawable.menu_fold);
-		} else {
-			slideButton.setBackgroundResource(R.drawable.menu_unfold);
-		}
 	}
 
 	@Override

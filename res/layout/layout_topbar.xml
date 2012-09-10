@@ -10,7 +10,7 @@
     <Button
         android:id="@+id/slideBtn"
         style="@style/topbar_left_btn"
-        android:background="@drawable/menu_unfold" />
+        android:background="@drawable/slidebtn_bg" />
 
     <TextView
         android:id="@+id/topbar_title"

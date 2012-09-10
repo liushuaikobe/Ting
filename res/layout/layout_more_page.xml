@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/local_page"
+    android:id="@+id/more_page"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#ffffffff" >
@@ -13,14 +13,14 @@
         <include layout="@layout/layout_topbar" />
     </LinearLayout>
 
-    <org.footoo.ting.ui.SlidingLinearLayout
+    <LinearLayout
         android:id="@+id/tmp_btm_ctrl"
         android:layout_width="fill_parent"
         android:layout_height="70dip"
         android:layout_alignParentBottom="true" >
 
         <include layout="@layout/layout_bottom_control" />
-    </org.footoo.ting.ui.SlidingLinearLayout>
+    </LinearLayout>
 
     <org.footoo.ting.ui.SlidingLinearLayout
         android:id="@+id/my_ll"
@@ -31,28 +31,13 @@
         android:background="#ffffff"
         android:orientation="vertical" >
 
-        <ViewSwitcher
-            android:id="@+id/viewswicher_local_source"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="5dip"
-            android:layout_marginRight="5dip" >
-
-            <GridView
-                android:id="@+id/local_source_grid"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="#00ffffff"
-                android:columnWidth="90dp"
-                android:gravity="center"
-                android:horizontalSpacing="10dip"
-                android:numColumns="3"
-                android:stretchMode="columnWidth"
-                android:verticalSpacing="10dip" >
-            </GridView>
-
-            <include layout="@layout/layout_progress_page" />
-        </ViewSwitcher>
+        <ListView
+            android:id="@+id/more_item_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:divider="@drawable/list_divider_line"
+            android:dividerHeight="3dip" >
+        </ListView>
     </org.footoo.ting.ui.SlidingLinearLayout>
 
 </RelativeLayout>

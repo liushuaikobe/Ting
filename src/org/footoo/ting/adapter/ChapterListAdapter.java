@@ -2,7 +2,6 @@ package org.footoo.ting.adapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.footoo.ting.R;
 import org.footoo.ting.util.ToastUtil;
@@ -14,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ChapterListAdapter extends BaseAdapter {
 

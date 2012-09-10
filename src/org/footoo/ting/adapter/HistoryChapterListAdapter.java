@@ -1,10 +1,9 @@
 package org.footoo.ting.adapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.footoo.ting.R;
+import org.footoo.ting.entity.PlayHistoryDbItem;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,33 +15,22 @@ import android.widget.TextView;
 public class HistoryChapterListAdapter extends BaseAdapter {
 
 	private Context mContext;
-	private ArrayList<Map<String, Object>> historyChapterList;
+	private ArrayList<PlayHistoryDbItem> historyList;
 
 	public HistoryChapterListAdapter(Context context) {
 		this.mContext = context;
-		initData();
 	}
 
-	/**
-	 * just for testing
-	 */
-	private void initData() {
-		historyChapterList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> itemMap = new HashMap<String, Object>();
+	public ArrayList<PlayHistoryDbItem> getHistoryList() {
+		return historyList;
+	}
 
-		itemMap.put("source_name", "红楼梦");
-		itemMap.put("last_timestamp", "上次播放至：23:45:26");
-		itemMap.put("chapter_name", "第十回 金寡妇贪利权受辱 张太医论病细穷源");
-
-		historyChapterList.add(itemMap);
-		historyChapterList.add(itemMap);
-		historyChapterList.add(itemMap);
-		historyChapterList.add(itemMap);
-		historyChapterList.add(itemMap);
+	public void setHistoryList(ArrayList<PlayHistoryDbItem> historyList) {
+		this.historyList = historyList;
 	}
 
 	public int getCount() {
-		return historyChapterList.size();
+		return historyList.size();
 	}
 
 	public Object getItem(int arg0) {
@@ -69,12 +57,12 @@ public class HistoryChapterListAdapter extends BaseAdapter {
 		} else {
 			holder = (HistoryListHolder) convertView.getTag();
 		}
-		holder.tv_sourceTitle.setText((String) historyChapterList.get(position)
-				.get("source_name"));
-		holder.tv_lastTimeStamp.setText((String) historyChapterList.get(
-				position).get("last_timestamp"));
-		holder.tv_chapterName.setText((String) historyChapterList.get(position)
-				.get("chapter_name"));
+		holder.tv_sourceTitle.setText((String) historyList.get(position)
+				.getSource_name());
+		holder.tv_lastTimeStamp.setText((String) historyList.get(position)
+				.getLast_time());
+		holder.tv_chapterName.setText((String) historyList.get(position)
+				.getChapter_name());
 		return convertView;
 	}
 

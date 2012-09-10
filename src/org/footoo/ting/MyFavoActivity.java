@@ -9,11 +9,10 @@ import org.footoo.ting.util.SizeCallBackForMenu;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -38,7 +37,19 @@ public class MyFavoActivity extends MainBaseActivity {
 		super.onCreate(savedInstanceState);
 
 		initData();
+		currentPageFlag = SOURCE_PAGE;
 		initViews();
+
+		// 制造假象
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				myFavoSwitcher.setDisplayedChild(0);
+			}
+		}, 1000);
+	}
+
+	private void initData() {
+		myFavoGridAdapter = new MyFavoGridAdapter(MyFavoActivity.this);
 	}
 
 	private void initViews() {
@@ -46,7 +57,6 @@ public class MyFavoActivity extends MainBaseActivity {
 		underView.setAdapter(new MenuGridAdapter(MyFavoActivity.this,
 				MenuGridAdapter.FAVORATE_PAGE_ID));
 
-		currentPageFlag = SOURCE_PAGE;
 		setContentPage(R.layout.layout_myfavo_page, R.string.myfavo_page_title,
 				new MyFaveGridPageSlideBtnClickListener(),
 				new ConfigContentPageInterface() {
@@ -60,18 +70,8 @@ public class MyFavoActivity extends MainBaseActivity {
 						myFavoGridView.setAdapter(myFavoGridAdapter);
 						myFavoGridView
 								.setOnItemClickListener(new MyFavoGridItemClickListener());
-						// 制造假象
-						new Handler().postDelayed(new Runnable() {
-							public void run() {
-								myFavoSwitcher.setDisplayedChild(0);
-							}
-						}, 1000);
 					}
 				});
-	}
-
-	private void initData() {
-		myFavoGridAdapter = new MyFavoGridAdapter(MyFavoActivity.this);
 	}
 
 	/**
@@ -90,6 +90,9 @@ public class MyFavoActivity extends MainBaseActivity {
 	private class ChapterListPageSlideBtnListener implements
 			View.OnClickListener {
 		public void onClick(View v) {
+			currentPageFlag = SOURCE_PAGE;
+			initViews();
+			myFavoSwitcher.setDisplayedChild(0);
 
 		}
 	}
@@ -101,6 +104,10 @@ public class MyFavoActivity extends MainBaseActivity {
 			AdapterView.OnItemClickListener {
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
+			currentPageFlag = CHAPTER_PAGE;
+			slideBtn.setBackgroundResource(R.drawable.go_back_selector);
+			slideBtn.setText(R.string.go_back);
+			slideBtn.setOnClickListener(new ChapterListPageSlideBtnListener());
 			ListView chapterList = new ListView(MyFavoActivity.this);
 			chapterList.setAdapter(new ChapterListAdapter(MyFavoActivity.this));
 			LinearLayout tmpLinearLayout = (LinearLayout) contentPage
@@ -133,6 +140,30 @@ public class MyFavoActivity extends MainBaseActivity {
 		scrollView.initViews(children, new SizeCallBackForMenu(slideBtn),
 				(View) findViewById(R.id.menu_layout));
 		scrollView.setSlideButton(slideBtn);
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (MainHorizontalScrollView.underViewIsOut == true) {
+				scrollView.clickSlideButton();
+			} else {
+				switch (currentPageFlag) {
+				case SOURCE_PAGE:
+					this.finish();
+					break;
+				case CHAPTER_PAGE:
+					currentPageFlag = SOURCE_PAGE;
+					initViews();
+					myFavoSwitcher.setDisplayedChild(0);
+					break;
+				default:
+					break;
+				}
+			}
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 	private interface ConfigContentPageInterface {

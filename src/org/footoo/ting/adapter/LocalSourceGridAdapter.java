@@ -44,8 +44,8 @@ public class LocalSourceGridAdapter extends BaseAdapter {
 					R.layout.local_source_griditem, null);
 			holder.iv_cover = (ImageView) convertView
 					.findViewById(R.id.local_source_cover);
-			 holder.pb_downloading = (ProgressBar) convertView
-			 .findViewById(R.id.downloading_prgbr);
+			holder.pb_downloading = (ProgressBar) convertView
+					.findViewById(R.id.downloading_prgbr);
 			convertView.setTag(holder);
 		} else {
 			holder = (LocalSourceGridHolder) convertView.getTag();

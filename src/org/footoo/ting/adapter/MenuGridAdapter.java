@@ -6,6 +6,7 @@ import org.footoo.ting.AllPageActivity;
 import org.footoo.ting.HistoryPageActivity;
 import org.footoo.ting.HotPageActivity;
 import org.footoo.ting.LocalSourceActivity;
+import org.footoo.ting.MoreActivity;
 import org.footoo.ting.MyFavoActivity;
 import org.footoo.ting.R;
 
@@ -110,6 +111,7 @@ public class MenuGridAdapter extends BaseAdapter {
 						R.anim.push_out);
 				mContext.finish();
 			}
+			break;
 		case FAVORATE_PAGE_ID:
 			if (myId == FAVORATE_PAGE_ID) {
 				((MyFavoActivity) mContext).getScrollView().clickSlideButton();
@@ -145,6 +147,16 @@ public class MenuGridAdapter extends BaseAdapter {
 				mContext.finish();
 			}
 			break;
+		case MORE_PAGE_ID:
+			if (myId == MORE_PAGE_ID) {
+				((MoreActivity) mContext).getScrollView().clickSlideButton();
+			} else {
+				intent.setClass(mContext, MoreActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.push_in,
+						R.anim.push_out);
+				mContext.finish();
+			}
 		default:
 			break;
 		}
