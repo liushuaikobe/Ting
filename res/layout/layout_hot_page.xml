@@ -6,13 +6,13 @@
     android:layout_height="fill_parent"
     android:background="#ffffffff" >
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/tmp_top_bar"
         android:layout_width="fill_parent"
         android:layout_height="40.0dip" >
 
         <include layout="@layout/layout_topbar" />
-    </LinearLayout>
+    </FrameLayout>
 
     <org.footoo.ting.ui.SlidingLinearLayout
         android:id="@+id/tmp_btm_ctrl"

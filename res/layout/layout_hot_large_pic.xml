@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|center_horizontal"
         android:scaleType="fitXY"
-        android:src="@drawable/test1" >
+        android:src="@drawable/large_pic_loding" >
     </ImageView>
 
 </LinearLayout>

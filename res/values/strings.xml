@@ -22,5 +22,8 @@
     <string name="del_submenu_text">确认清空</string>
     <string name="context_menu_play">播放</string>
     <string name="context_menu_del">删除该记录</string>
+    <string name="network_unavaliable">网络连接不可用，请检查您的网络连接</string>
+    <string name="service_unavaliable">服务不可用，请稍后再试</string>
+    <string name="begin_buffering">开始缓冲...</string>
 
 </resources>

@@ -46,7 +46,7 @@
                 android:layout_marginLeft="20dip"
                 android:layout_marginTop="6dip"
                 android:scaleType="centerCrop"
-                android:src="@drawable/sample_source_cover" />
+                android:src="@drawable/loading" />
 
             <RelativeLayout
                 android:layout_width="match_parent"

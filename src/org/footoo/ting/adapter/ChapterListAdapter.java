@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.footoo.ting.R;
+import org.footoo.ting.entity.Chapter;
 import org.footoo.ting.util.ToastUtil;
 
 import android.content.Context;
@@ -17,24 +18,23 @@ import android.widget.TextView;
 public class ChapterListAdapter extends BaseAdapter {
 
 	private Context mContext;
-	private List<String> chapterList;
+	private List<Chapter> chapterList;
 
 	public ChapterListAdapter(Context context) {
 		this.mContext = context;
-		initList();
 	}
 
-	/**
-	 * just for testing
-	 */
-	private void initList() {
-		chapterList = new ArrayList<String>();
-		chapterList.add("第一回 甄士隐梦幻识通灵 贾雨村风尘怀闺秀");
-		chapterList.add("第二回 贾夫人仙逝扬州城 冷子兴演说荣国府");
-		chapterList.add("第三回 托内兄如海酬训教 接外孙贾母惜孤女");
-		chapterList.add("第四回 薄命女偏逢薄命郎 葫芦僧乱判葫芦案");
-		chapterList.add("第五回 游幻境指迷十二钗 饮仙醪曲演红楼梦");
-		chapterList.add("第六回 贾宝玉初试云雨情 刘姥姥一进荣国府");
+	public ChapterListAdapter(Context context, ArrayList<Chapter> chapters) {
+		this(context);
+		this.chapterList = chapters;
+	}
+
+	public List<Chapter> getChapterList() {
+		return chapterList;
+	}
+
+	public void setChapterList(List<Chapter> chapterList) {
+		this.chapterList = chapterList;
 	}
 
 	public int getCount() {
@@ -66,7 +66,8 @@ public class ChapterListAdapter extends BaseAdapter {
 		} else {
 			holder = (ChptListholder) convertView.getTag();
 		}
-		holder.tv_chapterName.setText(chapterList.get(position));
+		holder.tv_chapterName.setText(chapterList.get(position)
+				.getChapterName());
 		final int pos = position;
 		holder.iv_favo.setOnClickListener(new View.OnClickListener() {
 
@@ -81,7 +82,6 @@ public class ChapterListAdapter extends BaseAdapter {
 			}
 		});
 		return convertView;
-
 	}
 
 	private class ChptListholder {
