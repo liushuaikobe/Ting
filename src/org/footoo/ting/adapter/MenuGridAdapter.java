@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 
 public class MenuGridAdapter extends BaseAdapter {
@@ -67,9 +68,9 @@ public class MenuGridAdapter extends BaseAdapter {
 			// imageView = (ImageView) (LayoutInflater.from(mContext).inflate(
 			// R.layout.layout_menu_grid_item, null));
 			imageView = new ImageView(mContext);
-			// imageView.setLayoutParams(new GridView.LayoutParams(150, 150));
-			// imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-			// imageView.setPadding(8, 8, 8, 8);
+			imageView.setLayoutParams(new GridView.LayoutParams(150, 150));
+			imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+			imageView.setPadding(8, 8, 8, 8);
 		} else {
 			imageView = (ImageView) convertView;
 		}

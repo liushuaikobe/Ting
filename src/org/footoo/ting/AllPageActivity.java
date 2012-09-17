@@ -1,25 +1,58 @@
 package org.footoo.ting;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+
 import org.footoo.ting.adapter.CategoryListAdapter;
 import org.footoo.ting.adapter.ChapterListAdapter;
 import org.footoo.ting.adapter.MenuGridAdapter;
 import org.footoo.ting.adapter.SourcesListAdapter;
+import org.footoo.ting.entity.Book;
+import org.footoo.ting.entity.Category;
+import org.footoo.ting.entity.Chapter;
+import org.footoo.ting.entity.PlayHistoryDbItem;
+import org.footoo.ting.media.PlayControlActions;
+import org.footoo.ting.media.PlayerEngine;
+import org.footoo.ting.media.ServerInfo;
+import org.footoo.ting.storage.DBManager;
 import org.footoo.ting.ui.MainHorizontalScrollView;
+import org.footoo.ting.util.AppUtil;
+import org.footoo.ting.util.FileAccess;
+import org.footoo.ting.util.HttpUtil;
 import org.footoo.ting.util.SizeCallBackForMenu;
+import org.footoo.ting.util.ToastUtil;
 import org.footoo.ting.R;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
@@ -27,12 +60,38 @@ public class AllPageActivity extends MainBaseActivity {
 	private ListView categoryLv;
 	private ViewSwitcher viewSwitcher;
 
-	private BaseAdapter categoryListAdapter; // 类别列表的adapter
-	private BaseAdapter sourcesListAdapter;
+	private JSONObject resultJSObject;
+	private JSONObject sourceJSObject;
+	private JSONObject chapterJSObject;
 
-	// 资源具体情况页面的一些View
+	private ArrayList<Category> categories;
+	private ArrayList<Book> books;
+	private ArrayList<Chapter> chapters;
+
+	private CategoryListAdapter categoryListAdapter; // 类别列表的adapter
+	private SourcesListAdapter sourcesListAdapter;
+	private ChapterListAdapter chapterListAdapter;
+
+	private PlayerEngine.PlayControlBinder binder;
+
+	private ShowToastReceiver showToastReceiver;
+	private UpdateSkBarFirstProgress updateSkBarFirstProgress;
+	private UpdateSkBarSecondProgress updateSkBarSecondProgress;
+	private UpdateNowplayingTitle updateNowplayingTitle;
+
+	private ImageView broadcastController; // 底部控制板的一些View
+	private SeekBar skbProgress;
+	private TextView nowPlayingTitle;
+	private ImageView addMyFAvoBtm;
+
+	private ImageView coverImgViewDetail; // 资源具体情况页面的一些View
 	private ViewSwitcher detailViewSwitcher;
 	private ListView chapterLv;
+	private Bitmap coverImgDetail;
+
+	private DBManager manager;
+
+	private int currentSourcePos;
 
 	private int currentPageId; // 标志着当前页面内容的Id
 	private View AllPageListView; // 暂存contentPage内容的
@@ -47,17 +106,32 @@ public class AllPageActivity extends MainBaseActivity {
 
 		initData();
 		initViews();
+		BindPlayService();
+		registerReceivers();
 
-		new Handler().postDelayed(new Runnable() {
+		new Thread(new Runnable() {
 
 			public void run() {
-				categoryLv.setAdapter(categoryListAdapter);
-				currentPageId = CATEGORY_PAGE;
-				viewSwitcher.setDisplayedChild(0);
-
+				getCategoryList(ServerInfo.ServerURl + "/whole.json");
 			}
-		}, 2000);
+		}).start();
+	}
 
+	private void initData() {
+		categories = new ArrayList<Category>();
+		books = new ArrayList<Book>();
+		chapters = new ArrayList<Chapter>();
+
+		categoryListAdapter = new CategoryListAdapter(AllPageActivity.this);
+		sourcesListAdapter = new SourcesListAdapter(AllPageActivity.this);
+		chapterListAdapter = new ChapterListAdapter(AllPageActivity.this);
+
+		showToastReceiver = new ShowToastReceiver();
+		updateSkBarFirstProgress = new UpdateSkBarFirstProgress();
+		updateSkBarSecondProgress = new UpdateSkBarSecondProgress();
+		updateNowplayingTitle = new UpdateNowplayingTitle();
+
+		manager = new DBManager(AllPageActivity.this);
 	}
 
 	private void initViews() {
@@ -92,9 +166,23 @@ public class AllPageActivity extends MainBaseActivity {
 		viewSwitcher.showNext();
 	}
 
-	private void initData() {
-		categoryListAdapter = new CategoryListAdapter(AllPageActivity.this);
-		sourcesListAdapter = new SourcesListAdapter(AllPageActivity.this);
+	private void registerReceivers() {
+		IntentFilter filter;
+
+		filter = new IntentFilter(PlayControlActions.ACTION_SHOW_TOAST);
+		registerReceiver(showToastReceiver, filter);
+
+		filter = new IntentFilter(
+				PlayControlActions.ACTION_UPDATE_FIRST_PROGRESS);
+		registerReceiver(updateSkBarFirstProgress, filter);
+
+		filter = new IntentFilter(
+				PlayControlActions.ACTION_UPDATE_SECOND_PROGRESS);
+		registerReceiver(updateSkBarSecondProgress, filter);
+
+		filter = new IntentFilter(
+				PlayControlActions.ACTION_UPDATE_NOWPLAYING_TITLE);
+		registerReceiver(updateNowplayingTitle, filter);
 	}
 
 	/**
@@ -115,7 +203,7 @@ public class AllPageActivity extends MainBaseActivity {
 		public void onClick(View v) {
 			currentPageId = CATEGORY_PAGE;
 			slideBtn.setBackgroundResource(R.drawable.slidebtn_bg);
-			slideBtn.setText("");
+			// slideBtn.setText("");
 			slideBtn.setOnClickListener(new CategoryPageSlideBtnClickListener());
 			categoryLv.setAdapter(categoryListAdapter);
 		}
@@ -135,7 +223,7 @@ public class AllPageActivity extends MainBaseActivity {
 						public void config(View page) {
 							slideBtn.setBackgroundResource(R.drawable.go_back_selector);
 							slideBtn.setOnClickListener(new SourcePageSLideBtnCLickListener());
-							slideBtn.setText(R.string.go_back);
+							// slideBtn.setText(R.string.go_back);
 						}
 					});
 		}
@@ -166,6 +254,25 @@ public class AllPageActivity extends MainBaseActivity {
 
 		slideBtn = (Button) contentPage.findViewById(R.id.slideBtn); // 设置ContentPage上SlideButton的点击事件
 		slideBtn.setOnClickListener(clickListener);
+
+		skbProgress = (SeekBar) ((View) contentPage // 初始化底部控制面板的View
+				.findViewById(R.id.tmp_btm_ctrl)).findViewById(R.id.bottom_skb);
+		skbProgress.setOnTouchListener(new SeekBarTouchListener());
+		skbProgress.setOnSeekBarChangeListener(new SeekBarChangeEvent());
+		PlayControlActions.skBarMax = skbProgress.getMax();
+
+		broadcastController = (ImageView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_control_btn);
+		broadcastController.setOnClickListener(new BottomCtrlClickListener());
+		broadcastController
+				.setOnLongClickListener(new BottomCtrlLongClickListener());
+		nowPlayingTitle = (TextView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_title);
+		addMyFAvoBtm = (ImageView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_favorate);
 
 		cPageInterface.config(contentPage);
 
@@ -204,6 +311,25 @@ public class AllPageActivity extends MainBaseActivity {
 		slideBtn = (Button) contentPage.findViewById(R.id.slideBtn); // 设置ContentPage上SlideButton的点击事件
 		slideBtn.setOnClickListener(clickListener);
 
+		skbProgress = (SeekBar) ((View) contentPage // 初始化底部控制面板的View
+				.findViewById(R.id.tmp_btm_ctrl)).findViewById(R.id.bottom_skb);
+		skbProgress.setOnTouchListener(new SeekBarTouchListener());
+		skbProgress.setOnSeekBarChangeListener(new SeekBarChangeEvent());
+		PlayControlActions.skBarMax = skbProgress.getMax();
+
+		broadcastController = (ImageView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_control_btn);
+		broadcastController.setOnClickListener(new BottomCtrlClickListener());
+		broadcastController
+				.setOnLongClickListener(new BottomCtrlLongClickListener());
+		nowPlayingTitle = (TextView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_title);
+		addMyFAvoBtm = (ImageView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_favorate);
+
 		cPageInterface.config(contentPage);
 
 		View leftView = new View(this); // 设置将ContentPage显示到HSV上+
@@ -241,6 +367,25 @@ public class AllPageActivity extends MainBaseActivity {
 		slideBtn = (Button) contentPage.findViewById(R.id.slideBtn); // 设置ContentPage上SlideButton的点击事件
 		slideBtn.setOnClickListener(clickListener);
 
+		skbProgress = (SeekBar) ((View) contentPage // 初始化底部控制面板的View
+				.findViewById(R.id.tmp_btm_ctrl)).findViewById(R.id.bottom_skb);
+		skbProgress.setOnTouchListener(new SeekBarTouchListener());
+		skbProgress.setOnSeekBarChangeListener(new SeekBarChangeEvent());
+		PlayControlActions.skBarMax = skbProgress.getMax();
+
+		broadcastController = (ImageView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_control_btn);
+		broadcastController.setOnClickListener(new BottomCtrlClickListener());
+		broadcastController
+				.setOnLongClickListener(new BottomCtrlLongClickListener());
+		nowPlayingTitle = (TextView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_title);
+		addMyFAvoBtm = (ImageView) ((View) contentPage
+				.findViewById(R.id.tmp_btm_ctrl))
+				.findViewById(R.id.bottom_favorate);
+
 		cPageInterface.config(contentPage);
 
 		View leftView = new View(this); // 设置将ContentPage显示到HSV上+
@@ -253,16 +398,147 @@ public class AllPageActivity extends MainBaseActivity {
 	}
 
 	/**
+	 * 更新SeekBar的FirstProgress
+	 */
+	private class UpdateSkBarFirstProgress extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			skbProgress.setProgress((int) intent.getLongExtra("first_progress",
+					0L));
+		}
+	}
+
+	/**
+	 * 更新SeekBar的SecondProgress
+	 */
+	private class UpdateSkBarSecondProgress extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			skbProgress.setSecondaryProgress(intent.getIntExtra(
+					"second_progress", 0));
+		}
+	}
+
+	/**
+	 * 弹出Toast
+	 */
+	private class ShowToastReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String content = intent.getStringExtra("toast_content");
+			ToastUtil.makeShortToast(AllPageActivity.this, content);
+		}
+	}
+
+	/**
+	 * 设置底部播放器的题目
+	 */
+	private class UpdateNowplayingTitle extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String title = intent.getStringExtra("nowplaying_title");
+			nowPlayingTitle.setText(title);
+		}
+	}
+
+	/**
 	 * 具体资源页面的章节列表的Item的点击事件
 	 */
 	private class MyChapterItemClickListener implements
 			AdapterView.OnItemClickListener {
 
-		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long arg3) {
-			// TODO 在这里播放选中的章节(Chapter)
+			Log.i("chapters_url", chapters.get(position).getChapterUrl());
+
+			PlayHistoryDbItem history = new PlayHistoryDbItem();
+			history.setChapter_name(chapters.get(position).getChapterName());
+			history.setChapter_url(chapters.get(position).getChapterUrl());
+			history.setLast_time(AppUtil.getCurrentTimeString());
+			history.setSource_name(books.get(currentSourcePos).getSourceName());
+			manager.insertOneHistory(history);
+
+			Intent intent = new Intent(AllPageActivity.this, PlayerEngine.class);
+			intent.putExtra("audieo_name", chapters.get(position)
+					.getChapterName());
+			intent.putExtra("audieo_url", chapters.get(position)
+					.getChapterUrl());
+			startService(intent);
+			broadcastController.setImageResource(R.drawable.pause_btn_selector);
 		}
 
+	}
+
+	/**
+	 * seekBar的Touch事件，维护一个变量防止定时器与SeekBar拖动时进度冲突
+	 */
+	private class SeekBarTouchListener implements View.OnTouchListener {
+		public boolean onTouch(View v, MotionEvent event) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				PlayControlActions.skBarIsPressed = true;
+			} else if (event.getAction() == MotionEvent.ACTION_UP) {
+				PlayControlActions.skBarIsPressed = false;
+			}
+			return false;
+		}
+	}
+
+	/**
+	 * 底部控制面板的按钮的长按事件
+	 */
+	private class BottomCtrlLongClickListener implements
+			View.OnLongClickListener {
+		public boolean onLongClick(View v) {
+			ToastUtil.makeShortToast(AllPageActivity.this, "停止播放");
+			broadcastController.setImageResource(R.drawable.play_btn_selector);
+			binder.stopPlaying();
+			return true;
+		}
+	}
+
+	/**
+	 * 底部控制面板的按钮的点击事件
+	 */
+	private class BottomCtrlClickListener implements View.OnClickListener {
+		public void onClick(View v) {
+			if (PlayControlActions.playerIsStoping) {
+				binder.initPlayer();
+				binder.playTestSource();
+				broadcastController
+						.setImageResource(R.drawable.pause_btn_selector);
+				return;
+			}
+			if (binder.playerIsPlaying()) {
+				broadcastController
+						.setImageResource(R.drawable.play_btn_selector);
+				binder.pausePlaying();
+			} else {
+				broadcastController
+						.setImageResource(R.drawable.pause_btn_selector);
+				binder.goOnPlaying();
+			}
+		}
+	}
+
+	/**
+	 * seekbar的滑动事件
+	 */
+	class SeekBarChangeEvent implements SeekBar.OnSeekBarChangeListener {
+		int progress;
+
+		public void onProgressChanged(SeekBar seekBar, int progress,
+				boolean fromUser) {
+			this.progress = progress * binder.getPlayerDuration()
+					/ seekBar.getMax();
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+			binder.seekToPlayer(progress);
+		}
 	}
 
 	/**
@@ -276,30 +552,47 @@ public class AllPageActivity extends MainBaseActivity {
 			switch (currentPageId) {
 			case CATEGORY_PAGE:
 				currentPageId = SOURCES_PAGE;
-				categoryLv.setAdapter(sourcesListAdapter);
-				setTopBarTitle("古典文学");
+				setTopBarTitle(categories.get(position).getCategoryName());
+				viewSwitcher.showNext();
 				slideBtn.setBackgroundResource(R.drawable.go_back_selector);
 				slideBtn.setOnClickListener(new SourcePageSLideBtnCLickListener());
-				slideBtn.setText(R.string.go_back);
+				// slideBtn.setText(R.string.go_back);
+				final int pos = position;
+				new Thread(new Runnable() {
+					public void run() {
+						getSourceList(categories.get(pos).getCategoryUrl());
+					}
+				}).start();
 				break;
 			case SOURCES_PAGE:
+				AllPageListView = contentPage;
+				currentSourcePos = position;
 				currentPageId = DETAIL_PAGE;
-				AllPageListView = contentPage; // 将内容是ListView保存起来
 				setContentPage(R.layout.layout_source_detail, "红楼梦",
 						new DetailPageSlideBtnClickListener(),
 						new ConfigContentPageInterface() {
 							public void config(View page) {
-								slideBtn.setText(R.string.go_back);
+								// slideBtn.setText(R.string.go_back);
 								slideBtn.setBackgroundResource(R.drawable.go_back_selector);
-								((ImageView) page
-										.findViewById(R.id.source_cover_large))
-										.setImageResource(R.drawable.sample_source_cover);
+								// 启动新线程获取资源的封面
+								new Thread(new Runnable() {
+									public void run() {
+										coverImgDetail = getAvatarFromServer(books
+												.get(currentSourcePos)
+												.getImgUrl());
+										handler.sendEmptyMessage(4);
+									}
+								}).start();
+								coverImgViewDetail = (ImageView) page
+										.findViewById(R.id.source_cover_large);
 								((TextView) page
 										.findViewById(R.id.source_desc_detail))
-										.setText("本书是一部具有高度思想性和艺术性的伟大作品，作者具有初步的民主主义思想，他对现实社会、宫廷、官场的黑暗，封建贵族阶级及其家族的腐朽，对封建的科举、婚姻、奴婢、等级制度及社会统治思想等都进行了深刻的批判，并且提出了朦胧的带有初步民主主义性质的理想和主张。");
+										.setText(books.get(currentSourcePos)
+												.getSource_describe());
 								((TextView) page
 										.findViewById(R.id.lastmofify_time))
-										.setText("2012-09-01 15:59");
+										.setText(books.get(currentSourcePos)
+												.getLast_modify());
 								initChapterList(page);
 							}
 						});
@@ -333,17 +626,244 @@ public class AllPageActivity extends MainBaseActivity {
 		detailViewSwitcher.addView(getLayoutInflater().inflate(
 				R.layout.layout_progress_page, null));
 		detailViewSwitcher.showNext();
-		// 暂时现在初始化章节列表ListView的时候制造一种假象
-		new Handler().postDelayed(new Runnable() {
 
+		new Thread(new Runnable() {
 			public void run() {
-				chapterLv.setAdapter(new ChapterListAdapter(
-						AllPageActivity.this));
-
-				detailViewSwitcher.setDisplayedChild(0);
+				getChapterList(books.get(currentSourcePos).getChapterJonUrl());
 			}
-		}, 2000);
+		}).start();
 	}
+
+	/**
+	 * 初始化一个ServiceConnection对象用于和Service的绑定
+	 */
+	private ServiceConnection conn = new ServiceConnection() {
+
+		public void onServiceDisconnected(ComponentName name) {
+			Log.i("AllPageActivity", "--Disconnected--");
+		}
+
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			binder = (PlayerEngine.PlayControlBinder) service;
+		}
+	};
+
+	/**
+	 * 绑定到播放的Service
+	 */
+	private void BindPlayService() {
+		Intent intent = new Intent(AllPageActivity.this, PlayerEngine.class);
+		bindService(intent, conn, Service.BIND_AUTO_CREATE);
+	}
+
+	/**
+	 * 从服务器上下载某一具体资源的Bitmap
+	 * 
+	 * @return 封面的Bitmap
+	 */
+	private Bitmap getAvatarFromServer(String coverUrlStr) {
+		try {
+			URL avatarUrl = new URL(coverUrlStr);
+			byte[] data = HttpUtil.readInputStream((InputStream) avatarUrl
+					.openStream());
+			Bitmap bitmap = FileAccess.decodeSampledBitmapFromByteArray(data,
+					90, 110);
+			return bitmap;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 通过http请求获取类别列表
+	 * 
+	 * @param urlStr
+	 *            要解析的Json的URl
+	 */
+	private void getCategoryList(String urlStr) {
+		if (!AppUtil.isNetworkAvailable(this)) { // 判断网络连接情况
+			handler.sendEmptyMessage(0);
+			return;
+		}
+		try {
+			URL url = new URL(urlStr);
+			URLConnection connection = (URLConnection) url.openConnection();
+			connection.connect();
+
+			InputStream is = connection.getInputStream();
+			byte[] buf = new byte[2048];
+			int count = is.read(buf, 0, buf.length);
+			resultJSObject = new JSONObject(new String(buf, 0, count));
+			Log.e("JSON", resultJSObject.toString());
+
+			if (resultJSObject == null || resultJSObject.equals("")) {
+				handler.sendEmptyMessage(1);
+			} else {
+				JSONArray categoryContent = resultJSObject
+						.getJSONArray("content");
+				Category category;
+				categories.clear();
+				for (int i = 0; i < categoryContent.length(); i++) {
+					JSONObject eachCategory = (JSONObject) categoryContent
+							.opt(i);
+					category = new Category(eachCategory.getInt("category_id"),
+							eachCategory.getString("name"),
+							eachCategory.getString("category_json_url"));
+					categories.add(category);
+				}
+				handler.sendEmptyMessage(2);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 通过Http请求资源列表
+	 * 
+	 * @param urlStr
+	 */
+	private void getSourceList(String urlStr) {
+		if (!AppUtil.isNetworkAvailable(this)) { // 判断网络连接情况
+			handler.sendEmptyMessage(0);
+			return;
+		}
+		try {
+			URL url = new URL(urlStr);
+			URLConnection connection = (URLConnection) url.openConnection();
+			connection.connect();
+
+			InputStream is = connection.getInputStream();
+			byte[] buf = new byte[2048];
+			int count = is.read(buf, 0, buf.length);
+			sourceJSObject = new JSONObject(new String(buf, 0, count));
+			Log.e("JSON", sourceJSObject.toString());
+
+			if (sourceJSObject == null || sourceJSObject.equals("")) {
+				handler.sendEmptyMessage(1);
+			} else {
+				JSONArray sourceContent = sourceJSObject
+						.getJSONArray("content");
+				books.clear();
+				Book book;
+				for (int i = 0; i < sourceContent.length(); i++) {
+					JSONObject eachBook = (JSONObject) sourceContent.opt(i);
+					book = new Book(sourceJSObject.getInt("category_id"),
+							eachBook.getInt("source_id"),
+							eachBook.getString("source_name"),
+							eachBook.getString("img_url"),
+							eachBook.getString("source_describe"),
+							eachBook.getString("last_modify"),
+							eachBook.getString("chapter_json_url"));
+					books.add(book);
+				}
+				handler.sendEmptyMessage(3);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 通过http
+	 * 
+	 * @param urlStr
+	 */
+	private void getChapterList(String urlStr) {
+		if (!AppUtil.isNetworkAvailable(this)) { // 判断网络连接情况
+			handler.sendEmptyMessage(0);
+			return;
+		}
+		try {
+			URL url = new URL(urlStr);
+			URLConnection connection = (URLConnection) url.openConnection();
+			connection.connect();
+
+			InputStream is = connection.getInputStream();
+			byte[] buf = new byte[2048];
+			int count = is.read(buf, 0, buf.length);
+			chapterJSObject = new JSONObject(new String(buf, 0, count));
+			Log.e("JSON", chapterJSObject.toString());
+
+			if (chapterJSObject == null || chapterJSObject.equals("")) {
+				handler.sendEmptyMessage(1);
+			} else {
+				JSONArray chapterContent = chapterJSObject
+						.getJSONArray("content");
+				Chapter chapter;
+				chapters.clear();
+				for (int i = 0; i < chapterContent.length(); i++) {
+					JSONObject eachChapter = (JSONObject) chapterContent.opt(i);
+					chapter = new Chapter(eachChapter.getInt("chapter_id"),
+							eachChapter.getString("chapter_name"),
+							eachChapter.getString("chapter_url"));
+					chapters.add(chapter);
+				}
+				handler.sendEmptyMessage(5);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case 0:
+				ToastUtil.makeShortToast(AllPageActivity.this, getResources()
+						.getString(R.string.network_unavaliable));
+				break;
+			case 1:
+				ToastUtil.makeShortToast(AllPageActivity.this, getResources()
+						.getString(R.string.service_unavaliable));
+				break;
+			case 2:
+				categoryListAdapter.setCategories(categories);
+				categoryLv.setAdapter(categoryListAdapter);
+				currentPageId = CATEGORY_PAGE;
+				viewSwitcher.setDisplayedChild(0);
+				break;
+			case 3:
+				sourcesListAdapter.setBooks(books);
+				sourcesListAdapter.setParent(categoryLv);
+				categoryLv.setAdapter(sourcesListAdapter);
+				viewSwitcher.setDisplayedChild(0);
+				break;
+			case 4:
+				if (coverImgDetail != null) {
+					coverImgViewDetail.setImageBitmap(coverImgDetail);
+				}
+				break;
+			case 5:
+				chapterListAdapter.setChapterList(chapters);
+				chapterLv.setAdapter(chapterListAdapter);
+				detailViewSwitcher.setDisplayedChild(0);
+				break;
+			default:
+				break;
+			}
+		}
+	};
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -358,7 +878,7 @@ public class AllPageActivity extends MainBaseActivity {
 				case SOURCES_PAGE:
 					currentPageId = CATEGORY_PAGE;
 					slideBtn.setBackgroundResource(R.drawable.slidebtn_bg);
-					slideBtn.setText("");
+					// // slideBtn.setText("");
 					slideBtn.setOnClickListener(new CategoryPageSlideBtnClickListener());
 					categoryLv.setAdapter(categoryListAdapter);
 					break;
@@ -370,7 +890,7 @@ public class AllPageActivity extends MainBaseActivity {
 								public void config(View page) {
 									slideBtn.setBackgroundResource(R.drawable.go_back_selector);
 									slideBtn.setOnClickListener(new SourcePageSLideBtnCLickListener());
-									slideBtn.setText(R.string.go_back);
+									// slideBtn.setText(R.string.go_back);
 								}
 							});
 					break;
@@ -388,5 +908,19 @@ public class AllPageActivity extends MainBaseActivity {
 	 */
 	private interface ConfigContentPageInterface {
 		void config(View page);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceivers();
+		unbindService(conn);
+	}
+
+	private void unregisterReceivers() {
+		unregisterReceiver(showToastReceiver);
+		unregisterReceiver(updateNowplayingTitle);
+		unregisterReceiver(updateSkBarFirstProgress);
+		unregisterReceiver(updateSkBarSecondProgress);
 	}
 }

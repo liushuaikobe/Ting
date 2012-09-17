@@ -9,7 +9,7 @@
     <FrameLayout
         android:id="@+id/tmp_top_bar"
         android:layout_width="fill_parent"
-        android:layout_height="40.0dip" >
+        android:layout_height="50.0dip" >
 
         <include layout="@layout/layout_topbar" />
     </FrameLayout>
@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal|bottom"
                     android:padding="2dip"
-                    app:activeColor="#ff0000"
+                    app:activeColor="#96C608"
                     app:activeType="fill"
                     app:circleSeparation="20dip"
                     app:inactiveColor="#ffffff"

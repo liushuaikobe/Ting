@@ -10,4 +10,5 @@ public class PlayControlActions {
 
 	public static final String ACTION_SHOW_TOAST = "org.footoo.ting.showtoast";
 
+	public static final String ACTION_UPDATE_NOWPLAYING_TITLE = "org.footoo.ting.updatetitle";
 }

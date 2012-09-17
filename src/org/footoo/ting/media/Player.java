@@ -26,6 +26,8 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener,
 
 	private Timer mTimer;
 
+	private String nowPlayingTitle;
+
 	public Player(Context context) {
 		try {
 			mTimer = new Timer();
@@ -54,6 +56,8 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener,
 	Handler handler = new Handler() {
 		Intent intent = new Intent(
 				PlayControlActions.ACTION_UPDATE_FIRST_PROGRESS);
+		Intent intent_1 = new Intent(
+				PlayControlActions.ACTION_UPDATE_NOWPLAYING_TITLE);
 
 		@Override
 		public void handleMessage(Message msg) {
@@ -62,12 +66,23 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener,
 
 			if (duration > 0) {
 				long pos = PlayControlActions.skBarMax * position / duration;
-				// TODO 在这里发广播更新seekbar的firstprogress
+				// TODO 在这里发广播更新Seekbar的Firstprogress
 				intent.putExtra("first_progress", pos);
 				mContext.sendBroadcast(intent);
+				// TODO 在这里发广播更新底部播放器的标题
+				intent_1.putExtra("nowplaying_title", getNowPlayingTitle());
+				mContext.sendBroadcast(intent_1);
 			}
 		}
 	};
+
+	public String getNowPlayingTitle() {
+		return nowPlayingTitle;
+	}
+
+	public void setNowPlayingTitle(String nowPlayingTitle) {
+		this.nowPlayingTitle = nowPlayingTitle;
+	}
 
 	public void initMediaPlayer() {
 		mediaPlayer = new MediaPlayer();

@@ -29,6 +29,15 @@ public class HistoryChapterListAdapter extends BaseAdapter {
 		this.historyList = historyList;
 	}
 
+	/**
+	 * 删除一条历史记录
+	 * 
+	 * @param position
+	 */
+	public void removeOneHistory(int position) {
+		historyList.remove(position);
+	}
+
 	public int getCount() {
 		return historyList.size();
 	}

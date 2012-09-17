@@ -1,49 +1,62 @@
 package org.footoo.ting.adapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.footoo.ting.R;
+import org.footoo.ting.entity.Book;
+import org.footoo.ting.util.AsyncImageLoader;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class SourcesListAdapter extends BaseAdapter {
 
 	private Context mContext;
-	// 现在暂时在Adapter里面直接把数据源给了，以后要从Activity里面传过来
-	private List<Map<String, Object>> listItem;
+	private ArrayList<Book> books;
+	private AsyncImageLoader asyncImageLoader;
+	private ListView itemParent;
 
 	public SourcesListAdapter(Context context) {
 		this.mContext = context;
-		initItem();
+		asyncImageLoader = new AsyncImageLoader(90, 110);
 	}
 
-	/**
-	 * just be used for testing
-	 */
-	private void initItem() {
-		listItem = new ArrayList<Map<String, Object>>();
-		Map<String, Object> item;
-		for (int i = 0; i < 10; i++) {
-			item = new HashMap<String, Object>();
-			item.put("source_name", "红楼梦");
-			item.put(
-					"source_desc",
-					"本书是一部具有高度思想性和高度艺术性的伟大作品，作者具有初步的民主主义思想，他对现实社会、宫廷、官场的黑暗，封建贵族阶级及其家族的腐朽，对封建的科举、婚姻、奴婢、等级制度及社会统治思想等都进行了深刻的批判，并且提出了朦胧的带有初步民主主义性质的理想和主张。");
-			listItem.add(item);
-		}
+	public SourcesListAdapter(Context context, ArrayList<Book> books) {
+		this(context);
+		this.books = books;
+	}
+
+	public SourcesListAdapter(Context context, ArrayList<Book> books,
+			ListView parent) {
+		this(context, books);
+		this.itemParent = parent;
+	}
+
+	public ArrayList<Book> getBooks() {
+		return books;
+	}
+
+	public void setBooks(ArrayList<Book> books) {
+		this.books = books;
+	}
+
+	public ListView getParent() {
+		return itemParent;
+	}
+
+	public void setParent(ListView parent) {
+		this.itemParent = parent;
 	}
 
 	public int getCount() {
-		return listItem.size();
+		return books.size();
 	}
 
 	public Object getItem(int position) {
@@ -70,11 +83,30 @@ public class SourcesListAdapter extends BaseAdapter {
 		} else {
 			holder = (SourceItemHolder) convertView.getTag();
 		}
-		holder.cover_iv.setImageResource(R.drawable.sample_source_cover);
-		holder.name_tv.setText((String) (listItem.get(position)
-				.get("source_name")));
-		holder.desc_tv.setText((String) listItem.get(position).get(
-				"source_desc"));
+		holder.name_tv.setText(books.get(position).getSourceName());
+		holder.desc_tv.setText(books.get(position).getSource_describe());
+		holder.cover_iv.setTag(books.get(position).getImgUrl());
+		Drawable cacheImg = asyncImageLoader.loadDrawable(books.get(position)
+				.getImgUrl(), new AsyncImageLoader.ImageCallback() {
+
+			public void imageLoaded(Drawable imageDrawable, String imageUrl) {
+				ImageView ivByTag = (ImageView) itemParent
+						.findViewWithTag(imageUrl);
+				if (ivByTag != null && imageDrawable != null) {
+					ivByTag.setImageDrawable(imageDrawable);
+				} else {
+					try {
+						ivByTag.setImageResource(R.drawable.loading);
+					} catch (Exception e) {
+
+					}
+				}
+			}
+		});
+		holder.cover_iv.setImageResource(R.drawable.loading);
+		if (cacheImg != null) {
+			holder.cover_iv.setImageDrawable(cacheImg);
+		}
 		return convertView;
 	}
 

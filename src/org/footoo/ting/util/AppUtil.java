@@ -1,5 +1,8 @@
 package org.footoo.ting.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.footoo.ting.R;
 
 import android.app.AlertDialog;
@@ -59,4 +62,17 @@ public class AppUtil {
 		}
 		return false;
 	}
+
+	/**
+	 * 获得当前系统时间的标准形式
+	 * 
+	 * @return
+	 */
+	public static String getCurrentTimeString() {
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+		String dateTime = dateFormat.format(new Date());
+		return dateTime;
+	}
+
 }

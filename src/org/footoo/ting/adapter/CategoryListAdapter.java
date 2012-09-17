@@ -1,8 +1,10 @@
 package org.footoo.ting.adapter;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import org.footoo.ting.R;
+import org.footoo.ting.entity.Category;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -14,27 +16,27 @@ import android.widget.TextView;
 public class CategoryListAdapter extends BaseAdapter {
 
 	private Context mContext;
-	// 现在暂时在Adapter里面直接把数据源给了，以后要从Activity里面传过来
-	private ArrayList<String> listItem;
+	private ArrayList<Category> categories;
 
 	public CategoryListAdapter(Context context) {
 		this.mContext = context;
-		initItem();
 	}
 
-	/**
-	 * just be used for testing
-	 */
-	private void initItem() {
-		listItem = new ArrayList<String>();
-		listItem.add("都市言情");
-		listItem.add("卖萌无罪");
-		listItem.add("古典文学");
-		listItem.add("百家讲坛");
+	public CategoryListAdapter(Context context, ArrayList<Category> categories) {
+		this(context);
+		this.categories = categories;
+	}
+
+	public ArrayList<Category> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(ArrayList<Category> categories) {
+		this.categories = categories;
 	}
 
 	public int getCount() {
-		return listItem.size();
+		return categories.size();
 	}
 
 	public Object getItem(int position) {
@@ -53,7 +55,7 @@ public class CategoryListAdapter extends BaseAdapter {
 			convertView = v;
 		}
 		((TextView) convertView.findViewById(R.id.category_name))
-				.setText(listItem.get(position));
+				.setText(categories.get(position).getCategoryName());
 		return convertView;
 	}
 

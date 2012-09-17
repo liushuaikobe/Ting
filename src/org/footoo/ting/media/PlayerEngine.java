@@ -70,8 +70,8 @@ public class PlayerEngine extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		String urlStr = intent.getStringExtra("audieo_url");
-		player.playUrl(urlStr);
+		player.setNowPlayingTitle(intent.getStringExtra("audieo_name"));
+		player.playUrl(intent.getStringExtra("audieo_url"));
 		return START_STICKY;
 	}
 }

@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="70dip"
     android:layout_alignParentBottom="true"
-    android:background="@drawable/top_bar_bg" >
+    android:background="@drawable/bottom_ctrl_bg" >
 
     <ImageView
         android:id="@+id/bottom_control_btn"
@@ -33,7 +33,7 @@
             android:ellipsize="marquee"
             android:gravity="center"
             android:marqueeRepeatLimit="marquee_forever"
-            android:text="Lupe Fiasco-The Show Goes On" />
+            android:text="The Show Goes On" />
 
         <SeekBar
             android:id="@+id/bottom_skb"

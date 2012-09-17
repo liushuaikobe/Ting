@@ -13,9 +13,11 @@ import org.footoo.ting.adapter.HotPageThumbPicAdapter;
 import org.footoo.ting.adapter.MenuGridAdapter;
 import org.footoo.ting.entity.Book;
 import org.footoo.ting.entity.Chapter;
+import org.footoo.ting.entity.PlayHistoryDbItem;
 import org.footoo.ting.media.PlayControlActions;
 import org.footoo.ting.media.PlayerEngine;
 import org.footoo.ting.media.ServerInfo;
+import org.footoo.ting.storage.DBManager;
 import org.footoo.ting.ui.MainHorizontalScrollView;
 import org.footoo.ting.util.AppUtil;
 import org.footoo.ting.util.FileAccess;
@@ -40,7 +42,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -80,6 +81,7 @@ public class HotPageActivity extends MainBaseActivity {
 	private ShowToastReceiver showToastReceiver;
 	private UpdateSkBarFirstProgress updateSkBarFirstProgress;
 	private UpdateSkBarSecondProgress updateSkBarSecondProgress;
+	private UpdateNowplayingTitle updateNowplayingTitle;
 
 	private View cacheView; // 缓存最热页面的View
 
@@ -92,6 +94,8 @@ public class HotPageActivity extends MainBaseActivity {
 
 	private JSONObject resultJSObject;
 	private JSONObject chapterJSObject;
+
+	private DBManager manager;
 
 	private int currentSourcePos;
 
@@ -122,6 +126,7 @@ public class HotPageActivity extends MainBaseActivity {
 		hotBookThumb = new ArrayList<Book>();
 		hotBookLarge = new ArrayList<Book>();
 		chapters = new ArrayList<Chapter>();
+
 		thumbAdapter = new HotPageThumbPicAdapter(HotPageActivity.this);
 		largeAdapter = new HotPageLargePicAdapter(HotPageActivity.this);
 		chapterListAdapter = new ChapterListAdapter(HotPageActivity.this);
@@ -129,6 +134,9 @@ public class HotPageActivity extends MainBaseActivity {
 		showToastReceiver = new ShowToastReceiver();
 		updateSkBarFirstProgress = new UpdateSkBarFirstProgress();
 		updateSkBarSecondProgress = new UpdateSkBarSecondProgress();
+		updateNowplayingTitle = new UpdateNowplayingTitle();
+
+		manager = new DBManager(HotPageActivity.this);
 	}
 
 	private void initViews() {
@@ -175,6 +183,10 @@ public class HotPageActivity extends MainBaseActivity {
 		filter = new IntentFilter(
 				PlayControlActions.ACTION_UPDATE_SECOND_PROGRESS);
 		registerReceiver(updateSkBarSecondProgress, filter);
+
+		filter = new IntentFilter(
+				PlayControlActions.ACTION_UPDATE_NOWPLAYING_TITLE);
+		registerReceiver(updateNowplayingTitle, filter);
 	}
 
 	/**
@@ -196,7 +208,7 @@ public class HotPageActivity extends MainBaseActivity {
 					new ConfigContentPageInterface() {
 						public void config(View page) {
 							slideBtn.setBackgroundResource(R.drawable.slidebtn_bg);
-							slideBtn.setText("");
+							// slideBtn.setText("");
 						}
 					});
 			currentPageFlag = HOT_PAGE;
@@ -230,7 +242,7 @@ public class HotPageActivity extends MainBaseActivity {
 					new SourceDetailPageSlideBtnClickListener(),
 					new ConfigContentPageInterface() {
 						public void config(View page) {
-							slideBtn.setText(R.string.go_back);
+							// slideBtn.setText(R.string.go_back);
 							slideBtn.setBackgroundResource(R.drawable.go_back_selector);
 							// 启动新线程获取资源的封面
 							new Thread(new Runnable() {
@@ -263,8 +275,17 @@ public class HotPageActivity extends MainBaseActivity {
 
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			Log.i("chapters_url", chapters.get(position).getChapterUrl());
+			Log.e("chapters_url", chapters.get(position).getChapterUrl());
+			PlayHistoryDbItem history = new PlayHistoryDbItem();
+			history.setChapter_name(chapters.get(position).getChapterName());
+			history.setChapter_url(chapters.get(position).getChapterUrl());
+			history.setLast_time(AppUtil.getCurrentTimeString());
+			history.setSource_name(hotBookThumb.get(currentSourcePos)
+					.getSourceName());
+			manager.insertOneHistory(history);
 			Intent intent = new Intent(HotPageActivity.this, PlayerEngine.class);
+			intent.putExtra("audieo_name", chapters.get(position)
+					.getChapterName());
 			intent.putExtra("audieo_url", chapters.get(position)
 					.getChapterUrl());
 			startService(intent);
@@ -543,6 +564,17 @@ public class HotPageActivity extends MainBaseActivity {
 	}
 
 	/**
+	 * 设置底部播放器的题目
+	 */
+	private class UpdateNowplayingTitle extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String title = intent.getStringExtra("nowplaying_title");
+			nowPlayingTitle.setText(title);
+		}
+	}
+
+	/**
 	 * 通过http请求获取书籍列表
 	 * 
 	 * @param url
@@ -753,7 +785,7 @@ public class HotPageActivity extends MainBaseActivity {
 							new ConfigContentPageInterface() {
 								public void config(View page) {
 									slideBtn.setBackgroundResource(R.drawable.slidebtn_bg);
-									slideBtn.setText("");
+									// slideBtn.setText("");
 								}
 							});
 					currentPageFlag = HOT_PAGE;
@@ -772,5 +804,19 @@ public class HotPageActivity extends MainBaseActivity {
 	 */
 	private interface ConfigContentPageInterface {
 		void config(View page);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceivers();
+		unbindService(conn);
+	}
+
+	private void unregisterReceivers() {
+		unregisterReceiver(showToastReceiver);
+		unregisterReceiver(updateNowplayingTitle);
+		unregisterReceiver(updateSkBarFirstProgress);
+		unregisterReceiver(updateSkBarSecondProgress);
 	}
 }
