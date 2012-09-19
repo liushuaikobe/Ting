@@ -20,9 +20,8 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE IF NOT EXISTS my_favo "
 				+ "(_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ "category_id INTEGER, " + "source_id INTEGER,"
-				+ "source_url VARCHAR," + "source_desc VARCHAR,"
-				+ "cover_path VARCHAR)");
+				+ "chapter_url VARCHAR, " + "source_name VARCHAR,"
+				+ "chapter_name VARCHAR," + "last_time VARCHAR)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS play_history "
 				+ "(_id INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ "chapter_url VARCHAR," + "source_name VARCHAR,"

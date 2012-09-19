@@ -9,7 +9,6 @@ import org.footoo.ting.media.PlayControlActions;
 import org.footoo.ting.media.PlayerEngine;
 import org.footoo.ting.storage.DBManager;
 import org.footoo.ting.ui.MainHorizontalScrollView;
-import org.footoo.ting.util.AppUtil;
 import org.footoo.ting.util.SizeCallBackForMenu;
 import org.footoo.ting.util.ToastUtil;
 
@@ -75,16 +74,6 @@ public class HistoryPageActivity extends MainBaseActivity {
 
 		registerForContextMenu(historyListView);
 
-		// 测试向数据库中插入数据
-		// for (int i = 0; i < 10; i++) {
-		// PlayHistoryDbItem item = new PlayHistoryDbItem();
-		// item.setChapter_name("第十一回 庆寿辰宁府排家宴 见熙凤贾瑞起淫心");
-		// item.setChapter_url("http://172.16.0.46/mp3/hongloumeng/11.mp3");
-		// item.setLast_time("2012-09-09 15:03");
-		// item.setSource_name("红楼梦");
-		// manager.insertOneHistory(item);
-		// }
-
 		new GetPlayHistoryTask().execute("begin");
 	}
 
@@ -97,6 +86,26 @@ public class HistoryPageActivity extends MainBaseActivity {
 		updateSkBarFirstProgress = new UpdateSkBarFirstProgress();
 		updateSkBarSecondProgress = new UpdateSkBarSecondProgress();
 		updateNowplayingTitle = new UpdateNowplayingTitle();
+	}
+
+	/**
+	 * 添加到我的收藏
+	 */
+	private class AddFavoClickListener implements View.OnClickListener {
+		public void onClick(View v) {
+			if (PlayControlActions.playerIsStoping == true) {
+				return;
+			}
+			if (manager.insertOneMyFavo(binder.getMyFavoDbItem()) == true) {
+				ToastUtil.makeShortToast(HistoryPageActivity.this,
+						getResources().getString(R.string.have_added_myfavo));
+				PlayControlActions.currentIsMyFavo = true;
+				addMyFavoBtm.setImageResource(R.drawable.favorate_ok);
+			} else {
+				ToastUtil.makeShortToast(HistoryPageActivity.this,
+						getResources().getString(R.string.has_been_myfavo));
+			}
+		}
 	}
 
 	private void initViews() {
@@ -123,6 +132,12 @@ public class HistoryPageActivity extends MainBaseActivity {
 		addMyFavoBtm = (ImageView) ((View) contentPage
 				.findViewById(R.id.tmp_btm_ctrl))
 				.findViewById(R.id.bottom_favorate);
+		addMyFavoBtm.setOnClickListener(new AddFavoClickListener());
+		if (PlayControlActions.currentIsMyFavo == true) {
+			addMyFavoBtm.setImageResource(R.drawable.favorate_ok);
+		} else {
+			addMyFavoBtm.setImageResource(R.drawable.favorate);
+		}
 
 		historySwitcher = (ViewSwitcher) contentPage
 				.findViewById(R.id.viewswicher_history);
@@ -198,7 +213,7 @@ public class HistoryPageActivity extends MainBaseActivity {
 		@Override
 		protected void onPreExecute() {
 			dlg = new ProgressDialog(HistoryPageActivity.this);
-			dlg.setTitle("清空历史");
+			dlg.setTitle("清空");
 			dlg.setMessage("正在清空，请稍后...");
 			dlg.setCancelable(false);
 			dlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -220,8 +235,8 @@ public class HistoryPageActivity extends MainBaseActivity {
 		protected void onPostExecute(Boolean result) {
 			dlg.dismiss();
 			if (result == true) {
-				historyChapterListAdapter
-						.setHistoryList(new ArrayList<PlayHistoryDbItem>());
+				historyList.clear();
+				historyChapterListAdapter.setHistoryList(historyList);
 				historyChapterListAdapter.notifyDataSetChanged();
 				ToastUtil.makeShortToast(HistoryPageActivity.this, "清空完毕");
 			} else {
@@ -243,13 +258,6 @@ public class HistoryPageActivity extends MainBaseActivity {
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
 			Log.e("chapters_url", historyList.get(position).getChapter_url());
-			// 记录播放历史
-			PlayHistoryDbItem history = new PlayHistoryDbItem();
-			history.setChapter_name(historyList.get(position).getChapter_name());
-			history.setChapter_url(historyList.get(position).getChapter_url());
-			history.setLast_time(AppUtil.getCurrentTimeString());
-			history.setSource_name(historyList.get(position).getSource_name());
-			manager.insertOneHistory(history);
 
 			Intent intent = new Intent(HistoryPageActivity.this,
 					PlayerEngine.class);
@@ -257,7 +265,17 @@ public class HistoryPageActivity extends MainBaseActivity {
 					.getChapter_name());
 			intent.putExtra("audieo_url", historyList.get(position)
 					.getChapter_url());
+			intent.putExtra("source_name", historyList.get(position)
+					.getSource_name());
 			startService(intent);
+			if (manager.hasBeenMyFavo(historyList.get(position)
+					.getChapter_url())) {
+				PlayControlActions.currentIsMyFavo = true;
+				addMyFavoBtm.setImageResource(R.drawable.favorate_ok);
+			} else {
+				PlayControlActions.currentIsMyFavo = false;
+				addMyFavoBtm.setImageResource(R.drawable.favorate);
+			}
 			broadcastController.setImageResource(R.drawable.pause_btn_selector);
 		}
 	}
@@ -365,15 +383,6 @@ public class HistoryPageActivity extends MainBaseActivity {
 		bindService(intent, conn, Service.BIND_AUTO_CREATE);
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		SubMenu delMenu = menu.addSubMenu(getResources().getString(
-				R.string.del_menu_text));
-		delMenu.add(0, 123, 0,
-				getResources().getString(R.string.del_submenu_text));
-		return super.onCreateOptionsMenu(menu);
-	}
-
 	/**
 	 * 更新SeekBar的FirstProgress
 	 */
@@ -416,6 +425,15 @@ public class HistoryPageActivity extends MainBaseActivity {
 			String title = intent.getStringExtra("nowplaying_title");
 			nowPlayingTitle.setText(title);
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		SubMenu delMenu = menu.addSubMenu(getResources().getString(
+				R.string.del_menu_text));
+		delMenu.add(0, 123, 0,
+				getResources().getString(R.string.del_submenu_text));
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override

@@ -28,24 +28,24 @@ public class MoreListAdapter extends BaseAdapter {
 
 		Map<String, String> itemMap;
 
-		itemMap = new HashMap<String, String>();
-		itemMap.put(
-				"more_title",
-				mContext.getResources().getString(
-						R.string.more_item_search_text));
-		itemMap.put(
-				"more_desc",
-				mContext.getResources().getString(
-						R.string.more_item_search_desc));
-		itemList.add(itemMap);
-
-		itemMap = new HashMap<String, String>();
-		itemMap.put(
-				"more_title",
-				mContext.getResources().getString(
-						R.string.more_item_cleanchache_text));
-		itemMap.put("more_desc", "");
-		itemList.add(itemMap);
+		// itemMap = new HashMap<String, String>();
+		// itemMap.put(
+		// "more_title",
+		// mContext.getResources().getString(
+		// R.string.more_item_search_text));
+		// itemMap.put(
+		// "more_desc",
+		// mContext.getResources().getString(
+		// R.string.more_item_search_desc));
+		// itemList.add(itemMap);
+		//
+		// itemMap = new HashMap<String, String>();
+		// itemMap.put(
+		// "more_title",
+		// mContext.getResources().getString(
+		// R.string.more_item_cleanchache_text));
+		// itemMap.put("more_desc", "");
+		// itemList.add(itemMap);
 
 		itemMap = new HashMap<String, String>();
 		itemMap.put("more_title",

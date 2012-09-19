@@ -3,7 +3,7 @@
     android:id="@+id/myfavo_page"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#ffffffff" >
+    android:background="@drawable/background" >
 
     <LinearLayout
         android:id="@+id/tmp_top_bar"
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/tmp_btm_ctrl"
         android:layout_below="@id/tmp_top_bar"
-        android:background="#ffffff"
+        android:background="@drawable/background"
         android:orientation="vertical" >
 
         <ViewSwitcher
@@ -38,17 +38,13 @@
             android:layout_marginLeft="5dip"
             android:layout_marginRight="5dip" >
 
-            <GridView
-                android:id="@+id/myfavo_grid"
+            <ListView
+                android:id="@+id/myfavo_list"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="#00ffffff"
-                android:columnWidth="90dp"
-                android:gravity="center"
-                android:horizontalSpacing="10dip"
-                android:numColumns="3"
-                android:stretchMode="columnWidth"
-                android:verticalSpacing="10dip" />
+                android:divider="@drawable/list_divider_line"
+                android:dividerHeight="3dip" >
+            </ListView>
 
             <include layout="@layout/layout_progress_page" />
         </ViewSwitcher>

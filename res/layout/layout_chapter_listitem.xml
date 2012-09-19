@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/chapter_list_bg" >
 
+    <!--
     <LinearLayout
         android:id="@+id/chapter_tmp_ll"
         android:layout_width="wrap_content"
@@ -19,23 +20,28 @@
             android:scaleType="centerCrop"
             android:src="@drawable/chapter_more_normal" />
 
-        <ImageView
-            android:id="@+id/chapter_favorate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
-            android:src="@drawable/chapter_fav_normal" />
-    </LinearLayout>
+    </LinearLayout>
+    -->
+
+    <ImageView
+        android:id="@+id/chapter_favorate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dip"
+        android:scaleType="centerCrop"
+        android:src="@drawable/chapter_fav_normal" />
 
     <TextView
         android:id="@+id/chapter_name"
         style="@style/chapter_listitem_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="6dip"
-        android:layout_marginRight="10dip"
-        android:layout_toLeftOf="@id/chapter_tmp_ll"
+        android:layout_marginLeft="8dip"
+        android:layout_toLeftOf="@id/chapter_favorate"
         android:ellipsize="end"
         android:singleLine="true" />
 

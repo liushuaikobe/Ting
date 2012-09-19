@@ -217,7 +217,7 @@ public class AllPageActivity extends MainBaseActivity {
 			View.OnClickListener {
 		public void onClick(View v) {
 			currentPageId = SOURCES_PAGE;
-			setContentPage(AllPageListView, "古典文学",
+			setContentPage(AllPageListView, null,
 					new SourcePageSLideBtnCLickListener(),
 					new ConfigContentPageInterface() {
 						public void config(View page) {
@@ -226,6 +226,29 @@ public class AllPageActivity extends MainBaseActivity {
 							// slideBtn.setText(R.string.go_back);
 						}
 					});
+		}
+	}
+
+	/**
+	 * 添加到我的收藏
+	 */
+	private class AddFavoClickListener implements View.OnClickListener {
+		public void onClick(View v) {
+			if (PlayControlActions.playerIsStoping == true) {
+				return;
+			}
+			if (manager.insertOneMyFavo(binder.getMyFavoDbItem()) == true) {
+				ToastUtil.makeShortToast(AllPageActivity.this, getResources()
+						.getString(R.string.have_added_myfavo));
+				PlayControlActions.currentIsMyFavo = true;
+				if (chapterListAdapter != null) {
+					chapterListAdapter.notifyDataSetChanged();
+				}
+				addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+			} else {
+				ToastUtil.makeShortToast(AllPageActivity.this, getResources()
+						.getString(R.string.has_been_myfavo));
+			}
 		}
 	}
 
@@ -273,6 +296,12 @@ public class AllPageActivity extends MainBaseActivity {
 		addMyFAvoBtm = (ImageView) ((View) contentPage
 				.findViewById(R.id.tmp_btm_ctrl))
 				.findViewById(R.id.bottom_favorate);
+		addMyFAvoBtm.setOnClickListener(new AddFavoClickListener());
+		if (PlayControlActions.currentIsMyFavo == true) {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+		} else {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate);
+		}
 
 		cPageInterface.config(contentPage);
 
@@ -329,6 +358,12 @@ public class AllPageActivity extends MainBaseActivity {
 		addMyFAvoBtm = (ImageView) ((View) contentPage
 				.findViewById(R.id.tmp_btm_ctrl))
 				.findViewById(R.id.bottom_favorate);
+		addMyFAvoBtm.setOnClickListener(new AddFavoClickListener());
+		if (PlayControlActions.currentIsMyFavo == true) {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+		} else {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate);
+		}
 
 		cPageInterface.config(contentPage);
 
@@ -361,9 +396,6 @@ public class AllPageActivity extends MainBaseActivity {
 		}
 		contentPage = view; // 设置HSV上的ContentPage的内容
 
-		topBarTitleTv = (TextView) contentPage.findViewById(R.id.topbar_title);
-		setTopBarTitle(topBarTitle); // 设置ContentPage上TitleBar的文字
-
 		slideBtn = (Button) contentPage.findViewById(R.id.slideBtn); // 设置ContentPage上SlideButton的点击事件
 		slideBtn.setOnClickListener(clickListener);
 
@@ -385,6 +417,12 @@ public class AllPageActivity extends MainBaseActivity {
 		addMyFAvoBtm = (ImageView) ((View) contentPage
 				.findViewById(R.id.tmp_btm_ctrl))
 				.findViewById(R.id.bottom_favorate);
+		addMyFAvoBtm.setOnClickListener(new AddFavoClickListener());
+		if (PlayControlActions.currentIsMyFavo == true) {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+		} else {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate);
+		}
 
 		cPageInterface.config(contentPage);
 
@@ -463,7 +501,16 @@ public class AllPageActivity extends MainBaseActivity {
 					.getChapterName());
 			intent.putExtra("audieo_url", chapters.get(position)
 					.getChapterUrl());
+			intent.putExtra("source_name", books.get(currentSourcePos)
+					.getSourceName());
 			startService(intent);
+			if (manager.hasBeenMyFavo(chapters.get(position).getChapterUrl())) {
+				PlayControlActions.currentIsMyFavo = true;
+				addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+			} else {
+				PlayControlActions.currentIsMyFavo = false;
+				addMyFAvoBtm.setImageResource(R.drawable.favorate);
+			}
 			broadcastController.setImageResource(R.drawable.pause_btn_selector);
 		}
 
@@ -568,7 +615,8 @@ public class AllPageActivity extends MainBaseActivity {
 				AllPageListView = contentPage;
 				currentSourcePos = position;
 				currentPageId = DETAIL_PAGE;
-				setContentPage(R.layout.layout_source_detail, "红楼梦",
+				setContentPage(R.layout.layout_source_detail,
+						books.get(position).getSourceName(),
 						new DetailPageSlideBtnClickListener(),
 						new ConfigContentPageInterface() {
 							public void config(View page) {
@@ -873,18 +921,18 @@ public class AllPageActivity extends MainBaseActivity {
 			} else {
 				switch (currentPageId) {
 				case CATEGORY_PAGE:
-					this.finish();
+					AppUtil.QuitHintDialog(AllPageActivity.this);
 					break;
 				case SOURCES_PAGE:
 					currentPageId = CATEGORY_PAGE;
 					slideBtn.setBackgroundResource(R.drawable.slidebtn_bg);
-					// // slideBtn.setText("");
+					// slideBtn.setText("");
 					slideBtn.setOnClickListener(new CategoryPageSlideBtnClickListener());
 					categoryLv.setAdapter(categoryListAdapter);
 					break;
 				case DETAIL_PAGE:
 					currentPageId = SOURCES_PAGE;
-					setContentPage(AllPageListView, "古典文学",
+					setContentPage(AllPageListView, null,
 							new SourcePageSLideBtnCLickListener(),
 							new ConfigContentPageInterface() {
 								public void config(View page) {

@@ -14,11 +14,7 @@ public class LocalSourceGridAdapter extends BaseAdapter {
 
 	private Context mContext;
 
-	private int[] localSourceCover = { R.drawable.sample_cover_1,
-			R.drawable.sample_cover_1, R.drawable.sample_cover_1,
-			R.drawable.sample_cover_1, R.drawable.sample_cover_1,
-			R.drawable.sample_cover_1, R.drawable.sample_cover_1,
-			R.drawable.sample_cover_1, R.drawable.sample_cover_1 };
+	private int[] localSourceCover = { R.drawable.local_source_cover };
 
 	public LocalSourceGridAdapter(Context context) {
 		mContext = context;
@@ -37,24 +33,32 @@ public class LocalSourceGridAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		LocalSourceGridHolder holder;
+		// LocalSourceGridHolder holder;
+		// if (convertView == null) {
+		// holder = new LocalSourceGridHolder();
+		// convertView = LayoutInflater.from(mContext).inflate(
+		// R.layout.local_source_griditem, null);
+		// holder.iv_cover = (ImageView) convertView
+		// .findViewById(R.id.local_source_cover);
+		// holder.pb_downloading = (ProgressBar) convertView
+		// .findViewById(R.id.downloading_prgbr);
+		// convertView.setTag(holder);
+		// } else {
+		// holder = (LocalSourceGridHolder) convertView.getTag();
+		// }
+		// holder.iv_cover.setImageResource(localSourceCover[position]);
+		// if (position < 3) {
+		// holder.pb_downloading.setVisibility(View.VISIBLE);
+		// }
+		// return convertView;
+		ImageView imageView;
 		if (convertView == null) {
-			holder = new LocalSourceGridHolder();
-			convertView = LayoutInflater.from(mContext).inflate(
-					R.layout.local_source_griditem, null);
-			holder.iv_cover = (ImageView) convertView
-					.findViewById(R.id.local_source_cover);
-			holder.pb_downloading = (ProgressBar) convertView
-					.findViewById(R.id.downloading_prgbr);
-			convertView.setTag(holder);
+			imageView = new ImageView(mContext);
 		} else {
-			holder = (LocalSourceGridHolder) convertView.getTag();
+			imageView = (ImageView) convertView;
 		}
-		holder.iv_cover.setImageResource(localSourceCover[position]);
-		if (position < 3) {
-			holder.pb_downloading.setVisibility(View.VISIBLE);
-		}
-		return convertView;
+		imageView.setImageResource(localSourceCover[position]);
+		return imageView;
 	}
 
 	private class LocalSourceGridHolder {

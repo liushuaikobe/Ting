@@ -288,10 +288,18 @@ public class HotPageActivity extends MainBaseActivity {
 					.getChapterName());
 			intent.putExtra("audieo_url", chapters.get(position)
 					.getChapterUrl());
+			intent.putExtra("source_name", hotBookThumb.get(currentSourcePos)
+					.getSourceName());
 			startService(intent);
+			if (manager.hasBeenMyFavo(chapters.get(position).getChapterUrl())) {
+				PlayControlActions.currentIsMyFavo = true;
+				addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+			} else {
+				PlayControlActions.currentIsMyFavo = false;
+				addMyFAvoBtm.setImageResource(R.drawable.favorate);
+			}
 			broadcastController.setImageResource(R.drawable.pause_btn_selector);
 		}
-
 	}
 
 	/**
@@ -341,6 +349,29 @@ public class HotPageActivity extends MainBaseActivity {
 				broadcastController
 						.setImageResource(R.drawable.pause_btn_selector);
 				binder.goOnPlaying();
+			}
+		}
+	}
+
+	/**
+	 * 添加到我的收藏
+	 */
+	private class AddFavoClickListener implements View.OnClickListener {
+		public void onClick(View v) {
+			if (PlayControlActions.playerIsStoping == true) {
+				return;
+			}
+			if (manager.insertOneMyFavo(binder.getMyFavoDbItem()) == true) {
+				PlayControlActions.currentIsMyFavo = true;
+				ToastUtil.makeShortToast(HotPageActivity.this, getResources()
+						.getString(R.string.have_added_myfavo));
+				if (chapterListAdapter != null) {
+					chapterListAdapter.notifyDataSetChanged();
+				}
+				addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+			} else {
+				ToastUtil.makeShortToast(HotPageActivity.this, getResources()
+						.getString(R.string.has_been_myfavo));
 			}
 		}
 	}
@@ -462,6 +493,12 @@ public class HotPageActivity extends MainBaseActivity {
 		addMyFAvoBtm = (ImageView) ((View) contentPage
 				.findViewById(R.id.tmp_btm_ctrl))
 				.findViewById(R.id.bottom_favorate);
+		addMyFAvoBtm.setOnClickListener(new AddFavoClickListener());
+		if (PlayControlActions.currentIsMyFavo == true) {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+		} else {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate);
+		}
 
 		cPageInterface.config(contentPage);
 
@@ -518,6 +555,12 @@ public class HotPageActivity extends MainBaseActivity {
 		addMyFAvoBtm = (ImageView) ((View) contentPage
 				.findViewById(R.id.tmp_btm_ctrl))
 				.findViewById(R.id.bottom_favorate);
+		addMyFAvoBtm.setOnClickListener(new AddFavoClickListener());
+		if (PlayControlActions.currentIsMyFavo == true) {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate_ok);
+		} else {
+			addMyFAvoBtm.setImageResource(R.drawable.favorate);
+		}
 
 		cPageInterface.config(contentPage);
 
@@ -777,7 +820,7 @@ public class HotPageActivity extends MainBaseActivity {
 			} else {
 				switch (currentPageFlag) {
 				case HOT_PAGE:
-					this.finish();
+					AppUtil.QuitHintDialog(HotPageActivity.this);
 					break;
 				case DETAIL_PAGE:
 					setContentPage(cacheView, "最热",
@@ -811,6 +854,7 @@ public class HotPageActivity extends MainBaseActivity {
 		super.onDestroy();
 		unregisterReceivers();
 		unbindService(conn);
+		manager.closeDB();
 	}
 
 	private void unregisterReceivers() {

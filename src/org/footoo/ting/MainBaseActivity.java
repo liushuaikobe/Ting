@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.footoo.ting.ui.MainHorizontalScrollView;
+import org.footoo.ting.util.AppUtil;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -44,7 +45,7 @@ public class MainBaseActivity extends Activity {
 			if (MainHorizontalScrollView.underViewIsOut == true) {
 				scrollView.clickSlideButton();
 			} else {
-				this.finish();
+				AppUtil.QuitHintDialog(this);
 			}
 			return true;
 		}

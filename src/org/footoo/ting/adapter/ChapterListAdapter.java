@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.footoo.ting.R;
 import org.footoo.ting.entity.Chapter;
-import org.footoo.ting.util.ToastUtil;
+import org.footoo.ting.storage.DBManager;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -19,9 +19,11 @@ public class ChapterListAdapter extends BaseAdapter {
 
 	private Context mContext;
 	private List<Chapter> chapterList;
+	private DBManager manager;
 
 	public ChapterListAdapter(Context context) {
 		this.mContext = context;
+		manager = new DBManager(mContext);
 	}
 
 	public ChapterListAdapter(Context context, ArrayList<Chapter> chapters) {
@@ -35,6 +37,14 @@ public class ChapterListAdapter extends BaseAdapter {
 
 	public void setChapterList(List<Chapter> chapterList) {
 		this.chapterList = chapterList;
+	}
+
+	public DBManager getManager() {
+		return manager;
+	}
+
+	public void setManager(DBManager manager) {
+		this.manager = manager;
 	}
 
 	public int getCount() {
@@ -59,8 +69,8 @@ public class ChapterListAdapter extends BaseAdapter {
 					.findViewById(R.id.chapter_name);
 			holder.iv_favo = (ImageView) convertView
 					.findViewById(R.id.chapter_favorate);
-			holder.iv_download = (ImageView) convertView
-					.findViewById(R.id.chapter_download);
+			// holder.iv_download = (ImageView) convertView
+			// .findViewById(R.id.chapter_download);
 			convertView.setTag(holder);
 
 		} else {
@@ -68,19 +78,23 @@ public class ChapterListAdapter extends BaseAdapter {
 		}
 		holder.tv_chapterName.setText(chapterList.get(position)
 				.getChapterName());
+		if (manager.hasBeenMyFavo(chapterList.get(position).getChapterUrl())) {
+			holder.iv_favo.setImageResource(R.drawable.chapter_fav_active);
+		}
 		final int pos = position;
 		holder.iv_favo.setOnClickListener(new View.OnClickListener() {
-
 			public void onClick(View v) {
-				ToastUtil.makeShortToast(mContext, pos + " position,favo");
+				if (manager == null) {
+					return;
+				}
 			}
 		});
-		holder.iv_download.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View v) {
-				ToastUtil.makeShortToast(mContext, pos + " position,download");
-			}
-		});
+		// holder.iv_download.setOnClickListener(new View.OnClickListener() {
+		//
+		// public void onClick(View v) {
+		// ToastUtil.makeShortToast(mContext, pos + " position,download");
+		// }
+		// });
 		return convertView;
 	}
 

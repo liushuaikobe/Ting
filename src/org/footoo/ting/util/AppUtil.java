@@ -4,15 +4,52 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.footoo.ting.R;
+import org.footoo.ting.media.PlayerEngine;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 public class AppUtil {
+
+	/**
+	 * 退出程序
+	 * 
+	 * @param context
+	 */
+	public static void QuitHintDialog(final Context context) {
+		new AlertDialog.Builder(context)
+				.setMessage(
+						context.getResources().getString(
+								R.string.quit_dialog_message))
+				.setTitle(context.getResources().getString(R.string.app_name))
+
+				.setIcon(R.drawable.ic_launcher)
+				.setPositiveButton("退出", new DialogInterface.OnClickListener() {
+
+					public void onClick(DialogInterface dialog, int which) {
+						try {
+							Intent intent = new Intent(context,
+									PlayerEngine.class);
+							context.stopService(intent);
+							((Activity) context).finish();
+						} catch (Exception e) {
+							Log.e("close", "close error");
+						}
+					}
+				})
+				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				}).create().show();
+	}
+
 	/**
 	 * 显示“关于”对话框
 	 * 

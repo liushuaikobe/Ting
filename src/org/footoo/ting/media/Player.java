@@ -8,6 +8,8 @@ import org.footoo.ting.R;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
@@ -97,11 +99,28 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener,
 		mediaPlayer.start();
 	}
 
+	public void playTestSource() {
+		AssetManager am = mContext.getAssets();
+		try {
+			AssetFileDescriptor afd = am
+					.openFd("Lupe Fiasco-The Show Goes On.mp3");
+			mediaPlayer.reset();
+			mediaPlayer.setDataSource(afd.getFileDescriptor(),
+					afd.getStartOffset(), afd.getLength());
+			mediaPlayer.prepare();
+			setNowPlayingTitle("Lupe Fiasco-The Show Goes On");
+			play();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void playUrl(String audioUrl) {
 		try {
 			mediaPlayer.reset();
 			mediaPlayer.setDataSource(audioUrl);
 			mediaPlayer.prepareAsync();
+			PlayControlActions.playerIsStoping = false;
 			// TODO 在此处显示Toast告知用户开始缓冲
 			Intent intent = new Intent(PlayControlActions.ACTION_SHOW_TOAST);
 			intent.putExtra("toast_content",

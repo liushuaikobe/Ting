@@ -5,6 +5,8 @@ public class PlayControlActions {
 	public static int skBarMax;
 	public static boolean playerIsStoping = true;
 
+	public static boolean currentIsMyFavo = false;
+
 	public static final String ACTION_UPDATE_FIRST_PROGRESS = "org.footoo.ting.firstprogress";
 	public static final String ACTION_UPDATE_SECOND_PROGRESS = "org.footoo.ting.secondprogress";
 

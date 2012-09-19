@@ -4,7 +4,7 @@
     android:id="@+id/hot_page"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#ffffffff" >
+    android:background="@drawable/background" >
 
     <FrameLayout
         android:id="@+id/tmp_top_bar"
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/tmp_btm_ctrl"
         android:layout_below="@id/tmp_top_bar"
-        android:background="#ffffff"
+        android:background="@drawable/background"
         android:orientation="vertical" >
 
         <FrameLayout

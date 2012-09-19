@@ -33,7 +33,7 @@
             android:ellipsize="marquee"
             android:gravity="center"
             android:marqueeRepeatLimit="marquee_forever"
-            android:text="The Show Goes On" />
+            android:text="...." />
 
         <SeekBar
             android:id="@+id/bottom_skb"

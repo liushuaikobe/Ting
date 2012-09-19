@@ -1,17 +1,20 @@
 package org.footoo.ting.media;
 
-import java.io.IOException;
+import org.footoo.ting.entity.MyFavoDbItem;
+import org.footoo.ting.util.AppUtil;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.os.Binder;
 import android.os.IBinder;
 
 public class PlayerEngine extends Service {
 
 	Player player;
+
+	private String chapter_url;
+	private String source_name;
+	private String chapter_name;
 
 	public class PlayControlBinder extends Binder {
 		public int getPlayerDuration() {
@@ -43,17 +46,19 @@ public class PlayerEngine extends Service {
 		}
 
 		public void playTestSource() {
-			AssetManager am = getAssets();
-			try {
-				AssetFileDescriptor afd = am
-						.openFd("Lupe Fiasco-The Show Goes On.mp3");
-				player.mediaPlayer.setDataSource(afd.getFileDescriptor(),
-						afd.getStartOffset(), afd.getLength());
-				player.mediaPlayer.prepare();
-				player.play();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			chapter_url = "http://106.186.17.91/ting/source/popmusic/test.mp3";
+			chapter_name = "Lupe Fiasco-The Show Goes On";
+			source_name = "The Show Goes On";
+			player.playTestSource();
+		}
+
+		public MyFavoDbItem getMyFavoDbItem() {
+			MyFavoDbItem tmpItem = new MyFavoDbItem();
+			tmpItem.setChapter_name(chapter_name);
+			tmpItem.setChapter_url(chapter_url);
+			tmpItem.setLast_time(AppUtil.getCurrentTimeString());
+			tmpItem.setSource_name(source_name);
+			return tmpItem;
 		}
 	}
 
@@ -70,8 +75,21 @@ public class PlayerEngine extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		player.setNowPlayingTitle(intent.getStringExtra("audieo_name"));
-		player.playUrl(intent.getStringExtra("audieo_url"));
+		chapter_name = intent.getStringExtra("audieo_name");
+		chapter_url = intent.getStringExtra("audieo_url");
+		source_name = intent.getStringExtra("source_name");
+
+		player.setNowPlayingTitle(chapter_name);
+		player.playUrl(chapter_url);
+
 		return START_STICKY;
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (player != null) {
+			player.mediaPlayer.stop();
+		}
 	}
 }
